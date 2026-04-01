@@ -401,7 +401,9 @@ table.insert(cors, sandbox(LocalScript17, function()
 											height = math.random(-3, spawnHeightLimit), 
 											thicknessOffset = math.random(),
 											clearance = clearance,
-											originalCollide = v.CanCollide
+											originalCollide = v.CanCollide,
+											upwardSpeed = math.random(20, 80) / 100,
+											spinModifier = math.random(70, 130) / 100
 										}
 										
 										grabbedThisCycle = grabbedThisCycle + 1
@@ -426,12 +428,12 @@ table.insert(cors, sandbox(LocalScript17, function()
 				if part.Parent and not part.Anchored then
 					
 					part.CanCollide = false
-					data.angle = data.angle + math.rad(speed)
+					data.angle = data.angle + math.rad(speed * data.spinModifier)
 					
 					local offset = Vector3.zero
 
 					if currentMode == "Tornado" then
-						data.height = data.height + 0.5 
+						data.height = data.height + data.upwardSpeed 
 
 						local tHeight = tonumber(heightBox.Text) or 60
 						local uWidth = tonumber(upperWidthBox.Text) or 45
@@ -440,6 +442,8 @@ table.insert(cors, sandbox(LocalScript17, function()
 						if data.height > tHeight then 
 							data.height = -3 
 							data.thicknessOffset = math.random() 
+							data.upwardSpeed = math.random(20, 80) / 100
+							data.spinModifier = math.random(70, 130) / 100
 						end
 
 						local totalTravel = tHeight
