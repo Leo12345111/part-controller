@@ -337,7 +337,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 				local bav = part:FindFirstChild("TornadoBAV")
 				if bav then bav:Destroy() end
 
-				part.Anchored = data.originalAnchored 
 				part.CanCollide = data.originalCollide 
 				part.CanQuery = data.originalQuery
 				pcall(function()
@@ -407,13 +406,14 @@ table.insert(cors, sandbox(LocalScript17, function()
 										
 										v.CanQuery = false
 										
-										-- THE SUCK-IN PHYSICS
+										-- PURE PHYSICS SETUP
 										local bp = Instance.new("BodyPosition")
 										bp.Name = "TornadoBP"
 										local partMass = v:GetMass()
+										-- Extremely high MaxForce and P so it aggressively snaps to the orbit path
 										bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge) 
-										bp.P = 500000 -- Max power
-										bp.D = 1000 
+										bp.P = 500000 + (partMass * 50000) 
+										bp.D = 1000 + (partMass * 100) 
 										bp.Parent = v
 										
 										local bav = Instance.new("BodyAngularVelocity")
@@ -423,24 +423,15 @@ table.insert(cors, sandbox(LocalScript17, function()
 										bav.Parent = v
 
 										partsInTornado[v] = {
-											isOrbiting = false, -- False means it is flying towards you using Physics
 											angle = math.rad(math.random(1, 360)), 
 											height = math.random(0, spawnHeightLimit), 
 											radiusMultiplier = math.random(10, 200) / 100, 
 											originalCollide = v.CanCollide,
 											originalQuery = v.CanQuery,
-											originalAnchored = v.Anchored,
 											upwardSpeed = math.random(50, 200) / 100,
 											spinModifier = math.random(40, 250) / 100, 
 											speedAdd = math.random(-25, 25), 
-											wobble = math.random(-8, 8),
-											
-											rotX = math.random(1, 360),
-											rotY = math.random(1, 360),
-											rotZ = math.random(1, 360),
-											rotSpeedX = math.random(-10, 10),
-											rotSpeedY = math.random(-10, 10),
-											rotSpeedZ = math.random(-10, 10)
+											wobble = math.random(-8, 8)
 										}
 										
 										grabbedThisCycle = grabbedThisCycle + 1
@@ -468,7 +459,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 			local offZ = tonumber(offZBox.Text) or 0
 
 			for part, data in pairs(partsInTornado) do
-				if part.Parent then
+				if part.Parent and not part.Anchored then
 					
 					part.CanCollide = false
 					
@@ -477,7 +468,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 					
 					local targetPos = Vector3.zero
 					local targetY = baseY + offY
-					local currentFunnelRadius = 0 -- Needed to calculate if it entered the tornado
 
 					if currentMode == "Tornado" then
 						data.height = data.height + (data.upwardSpeed * dt * 60) 
@@ -498,12 +488,13 @@ table.insert(cors, sandbox(LocalScript17, function()
 						local heightPercent = math.clamp(data.height / tHeight, 0, 1)
 						local maxRadiusAtHeight = lWidth + ((uWidth - lWidth) * (heightPercent ^ 1.5))
 						
-						currentFunnelRadius = maxRadiusAtHeight * data.radiusMultiplier
+						local currentTornadoRadius = maxRadiusAtHeight * data.radiusMultiplier
 						
-						local xOff = math.cos(data.angle) * currentFunnelRadius
-						local zOff = math.sin(data.angle) * currentFunnelRadius
+						local xOff = math.cos(data.angle) * currentTornadoRadius
+						local zOff = math.sin(data.angle) * currentTornadoRadius
 						
 						targetY = baseY + offY + data.height + data.wobble
+						
 						targetPos = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
 						
 					elseif currentMode == "Ring" then
@@ -512,45 +503,31 @@ table.insert(cors, sandbox(LocalScript17, function()
 						
 						data.height = 0
 						
-						currentFunnelRadius = math.max(2, rRadius + ((data.radiusMultiplier - 1) * rThickness * 1.5))
+						local currentRingRadius = math.max(2, rRadius + ((data.radiusMultiplier - 1) * rThickness * 1.5))
 						
-						local xOff = math.cos(data.angle) * currentFunnelRadius
-						local zOff = math.sin(data.angle) * currentFunnelRadius
+						local xOff = math.cos(data.angle) * currentRingRadius
+						local zOff = math.sin(data.angle) * currentRingRadius
 						
 						targetY = baseY + offY + data.wobble
+						
 						targetPos = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
 					end
 
-					if not data.isOrbiting then
-						-- FLYING IN PHASE
-						local bp = part:FindFirstChild("TornadoBP")
-						if bp then
-							-- Pull it directly to the center of the player/tornado to guarantee it catches
-							bp.Position = Vector3.new(root.Position.X + offX, targetY, root.Position.Z + offZ)
-						end
-						
-						-- Calculate how close it is to the player horizontally
-						local horizontalDistToPlayer = Vector3.new(part.Position.X - root.Position.X, 0, part.Position.Z - root.Position.Z).Magnitude
-						
-						-- THE TRANSITION TRIGGER: If it enters the tornado funnel width, catch it!
-						if horizontalDistToPlayer <= (currentFunnelRadius + 15) then
-							data.isOrbiting = true
-							part.Anchored = false 
-							
-							if bp then bp:Destroy() end
-							local bav = part:FindFirstChild("TornadoBAV")
-							if bav then bav:Destroy() end
-						end
-					else
-						-- ORBITING PHASE (TP/CFrame)
-						data.rotX = data.rotX + (data.rotSpeedX * dt)
-						data.rotY = data.rotY + (data.rotSpeedY * dt)
-						data.rotZ = data.rotZ + (data.rotSpeedZ * dt)
-						
-						part.CFrame = CFrame.new(targetPos) * CFrame.Angles(data.rotX, data.rotY, data.rotZ)
+					-- PURE PHYSICS UPDATE:
+					-- Constantly update the BodyPosition to the calculated orbit target.
+					local bp = part:FindFirstChild("TornadoBP")
+					if bp then
+						bp.Position = targetPos
 					end
-
 				else
+					-- If the part got deleted or anchored by another script, clean it up
+					if part.Parent then
+						part.CanCollide = data.originalCollide
+						part.CanQuery = data.originalQuery
+						pcall(function()
+							part.CollisionGroup = "Default"
+						end)
+					end
 					partsInTornado[part] = nil
 				end
 			end
