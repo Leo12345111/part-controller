@@ -63,7 +63,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local speedLabel = Instance.new("TextLabel", frame)
 	speedLabel.Size = UDim2.new(0.4, 0, 0, 30)
-	speedLabel.Position = UDim2.new(0.05, 0, 40)
+	speedLabel.Position = UDim2.new(0.05, 0, 0, 40)
 	speedLabel.Text = "Spin Speed:"
 	speedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 	speedLabel.BackgroundTransparency = 1
@@ -436,7 +436,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 						local heightPercent = math.clamp(data.height / tHeight, 0, 1)
 						local maxRadiusAtHeight = lWidth + ((uWidth - lWidth) * (heightPercent ^ 1.5))
 						
-						local currentTornadoRadius = math.max(15, maxRadiusAtHeight * data.radiusMultiplier)
+						local currentTornadoRadius = math.max(20, maxRadiusAtHeight * data.radiusMultiplier)
 						
 						local xOff = math.cos(data.angle) * currentTornadoRadius
 						local zOff = math.sin(data.angle) * currentTornadoRadius
@@ -451,7 +451,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 						
 						data.height = 0
 						
-						local currentRingRadius = math.max(15, rRadius + ((data.radiusMultiplier - 0.7) * rThickness))
+						local currentRingRadius = math.max(20, rRadius + ((data.radiusMultiplier - 0.7) * rThickness))
 						
 						local xOff = math.cos(data.angle) * currentRingRadius
 						local zOff = math.sin(data.angle) * currentRingRadius
