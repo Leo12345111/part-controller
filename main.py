@@ -411,16 +411,16 @@ table.insert(cors, sandbox(LocalScript17, function()
 										bp.Name = "TornadoBP"
 										
 										local partMass = v:GetMass()
-										bp.MaxForce = Vector3.new(1, 1, 1) * (partMass * 60000)
-										bp.P = 50000 + (partMass * 2000) 
-										bp.D = 1000 + (partMass * 100) 
+										bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge) 
+										bp.P = 50000 + (partMass * 25000) 
+										bp.D = 1000 + (partMass * 500) 
 										
 										bp.Parent = v
 										
 										local bav = Instance.new("BodyAngularVelocity")
 										bav.Name = "TornadoBAV"
-										bav.MaxTorque = Vector3.new(1, 1, 1) * (partMass * 5000)
-										bav.AngularVelocity = Vector3.new(math.random(-15, 15), math.random(-15, 15), math.random(-15, 15))
+										bav.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+										bav.AngularVelocity = Vector3.new(math.random(-25, 25), math.random(-25, 25), math.random(-25, 25))
 										bav.Parent = v
 										
 										local pClearance = v.Size.Magnitude / 2
@@ -428,13 +428,14 @@ table.insert(cors, sandbox(LocalScript17, function()
 										partsInTornado[v] = {
 											angle = math.random(1, 360),
 											height = math.random(0, spawnHeightLimit), 
-											radiusMultiplier = math.random(40, 100) / 100, 
+											radiusMultiplier = math.random(30, 150) / 100, 
 											originalCollide = v.CanCollide,
 											originalQuery = v.CanQuery,
 											clearance = pClearance,
-											upwardSpeed = math.random(40, 120) / 100,
-											spinModifier = math.random(50, 180) / 100,
-											speedAdd = math.random(-8, 8)
+											upwardSpeed = math.random(50, 200) / 100,
+											spinModifier = math.random(40, 250) / 100, 
+											speedAdd = math.random(-25, 25), 
+											wobble = math.random(-8, 8) 
 										}
 										
 										v.CanQuery = false
@@ -455,7 +456,8 @@ table.insert(cors, sandbox(LocalScript17, function()
 			if not char or not char:FindFirstChild("HumanoidRootPart") then return end
 			local root = char.HumanoidRootPart
 			
-			local baseY = root.Position.Y - 5 
+			local leg = char:FindFirstChild("Right Leg") or char:FindFirstChild("RightLowerLeg") or char:FindFirstChild("Left Leg") or char:FindFirstChild("LeftLowerLeg") or root
+			local baseY = leg.Position.Y 
 			
 			local baseSpeed = tonumber(speedBox.Text) or 35
 			local offX = tonumber(offXBox.Text) or 0
@@ -482,21 +484,22 @@ table.insert(cors, sandbox(LocalScript17, function()
 						
 						if data.height > tHeight then 
 							data.height = 0 
-							data.radiusMultiplier = math.random(40, 100) / 100
-							data.upwardSpeed = math.random(40, 120) / 100
-							data.spinModifier = math.random(50, 180) / 100
-							data.speedAdd = math.random(-8, 8)
+							data.radiusMultiplier = math.random(30, 150) / 100
+							data.upwardSpeed = math.random(50, 200) / 100
+							data.spinModifier = math.random(40, 250) / 100
+							data.speedAdd = math.random(-25, 25)
+							data.wobble = math.random(-8, 8)
 						end
 
 						local heightPercent = math.clamp(data.height / tHeight, 0, 1)
 						local maxRadiusAtHeight = lWidth + ((uWidth - lWidth) * (heightPercent ^ 1.5))
 						
-						local currentTornadoRadius = math.max(20, maxRadiusAtHeight * data.radiusMultiplier)
+						local currentTornadoRadius = math.max(10, maxRadiusAtHeight * data.radiusMultiplier)
 						
 						local xOff = math.cos(data.angle) * currentTornadoRadius
 						local zOff = math.sin(data.angle) * currentTornadoRadius
 						
-						targetY = baseY + offY + data.height 
+						targetY = baseY + offY + data.height + data.wobble
 						
 						offset = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
 						
@@ -506,10 +509,12 @@ table.insert(cors, sandbox(LocalScript17, function()
 						
 						data.height = 0
 						
-						local currentRingRadius = math.max(20, rRadius + ((data.radiusMultiplier - 0.7) * rThickness))
+						local currentRingRadius = math.max(10, rRadius + ((data.radiusMultiplier - 0.7) * rThickness))
 						
 						local xOff = math.cos(data.angle) * currentRingRadius
 						local zOff = math.sin(data.angle) * currentRingRadius
+						
+						targetY = baseY + offY + data.wobble
 						
 						offset = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
 					end
