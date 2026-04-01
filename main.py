@@ -63,7 +63,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local speedLabel = Instance.new("TextLabel", frame)
 	speedLabel.Size = UDim2.new(0.4, 0, 0, 30)
-	speedLabel.Position = UDim2.new(0.05, 0, 0, 40)
+	speedLabel.Position = UDim2.new(0.05, 0, 40)
 	speedLabel.Text = "Spin Speed:"
 	speedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 	speedLabel.BackgroundTransparency = 1
@@ -359,11 +359,10 @@ table.insert(cors, sandbox(LocalScript17, function()
 										bp.Name = "TornadoBP"
 										
 										local partMass = v:GetMass()
-										local forceLimit = partMass * 50000 
-										bp.MaxForce = Vector3.new(forceLimit, forceLimit, forceLimit)
-										
-										bp.P = 40000 + (partMass * 3000) 
-										bp.D = 6000 
+										-- Make the BodyPosition much more forceful and responsive so parts don't lag behind the speed
+										bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+										bp.P = 150000 + (partMass * 5000) 
+										bp.D = 1500 
 										
 										bp.Parent = v
 										
@@ -373,14 +372,19 @@ table.insert(cors, sandbox(LocalScript17, function()
 										bav.AngularVelocity = Vector3.new(math.random(-15, 15), math.random(-15, 15), math.random(-15, 15))
 										bav.Parent = v
 										
+										local pClearance = v.Size.Magnitude / 2
+										
 										partsInTornado[v] = {
 											angle = math.random(1, 360),
 											height = math.random(0, spawnHeightLimit), 
 											radiusMultiplier = math.random(40, 100) / 100, 
 											originalCollide = v.CanCollide,
 											originalQuery = v.CanQuery,
+											clearance = pClearance,
 											upwardSpeed = math.random(40, 120) / 100,
-											spinModifier = math.random(60, 140) / 100
+											-- Random multiplier (0.5x to 1.8x) AND a random addition (-8 to +8) for chaotic speed
+											spinModifier = math.random(50, 180) / 100,
+											speedAdd = math.random(-8, 8)
 										}
 										
 										v.CanQuery = false
@@ -404,14 +408,16 @@ table.insert(cors, sandbox(LocalScript17, function()
 			-- The absolute bottom base is strictly set to 5 studs below the root part
 			local baseY = root.Position.Y - 5 
 			
-			local speed = tonumber(speedBox.Text) or 35
-			local speedRadiusMod = math.abs(speed) / 35 
+			local baseSpeed = tonumber(speedBox.Text) or 35
 
 			for part, data in pairs(partsInTornado) do
 				if part.Parent and not part.Anchored then
 					
 					part.CanCollide = false
-					data.angle = data.angle + math.rad(speed * data.spinModifier)
+					
+					-- Calculate the actual speed for this specific part
+					local actualSpeed = (baseSpeed * data.spinModifier) + data.speedAdd
+					data.angle = data.angle + math.rad(actualSpeed)
 					
 					local offset = Vector3.zero
 					local targetY = baseY
@@ -427,13 +433,15 @@ table.insert(cors, sandbox(LocalScript17, function()
 							data.height = 0 
 							data.radiusMultiplier = math.random(40, 100) / 100
 							data.upwardSpeed = math.random(40, 120) / 100
-							data.spinModifier = math.random(60, 140) / 100
+							data.spinModifier = math.random(50, 180) / 100
+							data.speedAdd = math.random(-8, 8)
 						end
 
 						local heightPercent = math.clamp(data.height / tHeight, 0, 1)
 						local maxRadiusAtHeight = lWidth + ((uWidth - lWidth) * (heightPercent ^ 1.5))
 						
-						local currentTornadoRadius = (maxRadiusAtHeight * data.radiusMultiplier) * speedRadiusMod
+						-- Radius is completely decoupled from speed now
+						local currentTornadoRadius = maxRadiusAtHeight * data.radiusMultiplier
 						
 						local xOff = math.cos(data.angle) * currentTornadoRadius
 						local zOff = math.sin(data.angle) * currentTornadoRadius
@@ -449,7 +457,8 @@ table.insert(cors, sandbox(LocalScript17, function()
 						
 						data.height = 0
 						
-						local currentRingRadius = (rRadius + ((data.radiusMultiplier - 0.7) * rThickness)) * speedRadiusMod
+						-- Radius is completely decoupled from speed now
+						local currentRingRadius = rRadius + ((data.radiusMultiplier - 0.7) * rThickness)
 						
 						local xOff = math.cos(data.angle) * currentRingRadius
 						local zOff = math.sin(data.angle) * currentRingRadius
