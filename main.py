@@ -17,7 +17,8 @@ cors = {}
 local LocalScript17 = Instance.new("LocalScript")
 LocalScript17.Name = "TornadoUI"
 table.insert(cors, sandbox(LocalScript17, function()
-	local player = game:GetService("Players").LocalPlayer
+	local players = game:GetService("Players")
+	local player = players.LocalPlayer
 	local playerGui = player:WaitForChild("PlayerGui")
 	local runService = game:GetService("RunService")
 	local physicsService = game:GetService("PhysicsService")
@@ -335,17 +336,31 @@ table.insert(cors, sandbox(LocalScript17, function()
 						if grabbedThisCycle >= maxGrabsPerCycle then break end
 						
 						if v:IsA("BasePart") then
-							if not v.Anchored and not v:IsDescendantOf(char) then
+							-- NEW FIX: Make sure the part does not belong to ANY player in the server
+							local isPlayerPart = false
+							for _, p in pairs(players:GetPlayers()) do
+								if p.Character and v:IsDescendantOf(p.Character) then
+									isPlayerPart = true
+									break
+								end
+							end
+
+							if not v.Anchored and not isPlayerPart then
 								local dist = (v.Position - root.Position).Magnitude
 								
-								if dist <= sRange and not partsInTornado[v] then
+								-- Check both max range and minimum range (20 studs)
+								if dist <= sRange and dist >= 20 and not partsInTornado[v] then
 									
 									local isAttachedToPlayer = false
 									for _, connectedPart in pairs(v:GetConnectedParts()) do
-										if connectedPart:IsDescendantOf(char) then
-											isAttachedToPlayer = true
-											break
+										-- NEW FIX: Also make sure the part isn't physically welded/connected to a player
+										for _, p in pairs(players:GetPlayers()) do
+											if p.Character and connectedPart:IsDescendantOf(p.Character) then
+												isAttachedToPlayer = true
+												break
+											end
 										end
+										if isAttachedToPlayer then break end
 									end
 									
 									if not isAttachedToPlayer then
