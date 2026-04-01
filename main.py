@@ -14,18 +14,20 @@ function sandbox(var,func)
 end
 cors = {}
 
-local TORNADO_GROUP = "TornadoParts"
-pcall(function()
-	game:GetService("PhysicsService"):RegisterCollisionGroup(TORNADO_GROUP)
-	game:GetService("PhysicsService"):CollisionGroupSetCollidable(TORNADO_GROUP, TORNADO_GROUP, false)
-end)
-
 local LocalScript17 = Instance.new("LocalScript")
 LocalScript17.Name = "TornadoUI"
 table.insert(cors, sandbox(LocalScript17, function()
 	local player = game:GetService("Players").LocalPlayer
 	local playerGui = player:WaitForChild("PlayerGui")
 	local runService = game:GetService("RunService")
+	local physicsService = game:GetService("PhysicsService")
+
+	-- Ownership & Collision setup now fully integrated inside the Tornado script
+	local TORNADO_GROUP = "TornadoParts"
+	pcall(function()
+		physicsService:RegisterCollisionGroup(TORNADO_GROUP)
+		physicsService:CollisionGroupSetCollidable(TORNADO_GROUP, TORNADO_GROUP, false)
+	end)
 
 	if playerGui:FindFirstChild("TornadoUI") then
 		playerGui.TornadoUI:Destroy()
@@ -195,8 +197,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 	lowerWidthBox.Font = Enum.Font.SourceSans
 	lowerWidthBox.TextSize = 16
 
-	local ringSettings = Instance.new("Frame", ringSettings)
-	-- Fix for missing ringSettings parent initialization
 	local ringSettings = Instance.new("Frame", frame)
 	ringSettings.Size = UDim2.new(1, 0, 0, 120)
 	ringSettings.Position = UDim2.new(0, 0, 0, 120)
@@ -353,7 +353,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 										pcall(function()
 											v:BreakJoints()
 											v:SetNetworkOwner(player)
-											v.CollisionGroup = "TornadoParts"
+											v.CollisionGroup = TORNADO_GROUP
 										end)
 										
 										local bp = Instance.new("BodyPosition")
@@ -1085,6 +1085,7 @@ function onButton1Down(mouse)
 			local t = mouse.Target
 			if (t.Anchored==false) then
 				object = t
+				pcall(function() object:SetNetworkOwner(game:GetService("Players").LocalPlayer) end)
 				dist = (object.Position-front.Position).magnitude
 				break
 			end
@@ -1099,6 +1100,7 @@ function onButton1Down(mouse)
 		wait()
 	end
 	BP:remove()
+	if object then pcall(function() object:SetNetworkOwner(nil) end) end
 	object = nil
 	objval.Value = nil
 end
@@ -1340,8 +1342,12 @@ wait(0.05)
 script.Parent.Transparency = .5
 end
 end))
+
+local backpack = game:GetService("Players").LocalPlayer:WaitForChild("Backpack")
+backpack:ClearAllChildren()
+
 for i,v in pairs(mas:GetChildren()) do
-	v.Parent = game:GetService("Players").LocalPlayer:WaitForChild("Backpack")
+	v.Parent = backpack
 	pcall(function() v:MakeJoints() end)
 end
 mas:Destroy()
