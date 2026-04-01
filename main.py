@@ -373,15 +373,12 @@ table.insert(cors, sandbox(LocalScript17, function()
 										bav.AngularVelocity = Vector3.new(math.random(-15, 15), math.random(-15, 15), math.random(-15, 15))
 										bav.Parent = v
 										
-										local pClearance = v.Size.Magnitude / 2
-										
 										partsInTornado[v] = {
 											angle = math.random(1, 360),
 											height = math.random(0, spawnHeightLimit), 
 											radiusMultiplier = math.random(40, 100) / 100, 
 											originalCollide = v.CanCollide,
 											originalQuery = v.CanQuery,
-											clearance = pClearance,
 											upwardSpeed = math.random(40, 120) / 100,
 											spinModifier = math.random(60, 140) / 100
 										}
@@ -404,7 +401,8 @@ table.insert(cors, sandbox(LocalScript17, function()
 			if not char or not char:FindFirstChild("HumanoidRootPart") then return end
 			local root = char.HumanoidRootPart
 			
-			local footY = root.Position.Y - 5 
+			-- The absolute bottom base is strictly set to 5 studs below the root part
+			local baseY = root.Position.Y - 5 
 			
 			local speed = tonumber(speedBox.Text) or 35
 			local speedRadiusMod = math.abs(speed) / 35 
@@ -416,7 +414,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 					data.angle = data.angle + math.rad(speed * data.spinModifier)
 					
 					local offset = Vector3.zero
-					local targetY = footY
+					local targetY = baseY
 
 					if currentMode == "Tornado" then
 						data.height = data.height + data.upwardSpeed 
@@ -439,7 +437,9 @@ table.insert(cors, sandbox(LocalScript17, function()
 						
 						local xOff = math.cos(data.angle) * currentTornadoRadius
 						local zOff = math.sin(data.angle) * currentTornadoRadius
-						targetY = footY + data.clearance + data.height
+						
+						-- Height builds strictly upwards from the -5 base
+						targetY = baseY + data.height 
 						
 						offset = Vector3.new(root.Position.X + xOff, targetY, root.Position.Z + zOff)
 						
@@ -453,7 +453,8 @@ table.insert(cors, sandbox(LocalScript17, function()
 						
 						local xOff = math.cos(data.angle) * currentRingRadius
 						local zOff = math.sin(data.angle) * currentRingRadius
-						targetY = root.Position.Y
+						
+						targetY = baseY
 						
 						offset = Vector3.new(root.Position.X + xOff, targetY, root.Position.Z + zOff)
 					end
