@@ -332,12 +332,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 		
 		for part, data in pairs(partsInTornado) do
 			if part and part.Parent then
-				local bp = part:FindFirstChild("TornadoBP")
-				if bp then bp:Destroy() end
-				
-				local bav = part:FindFirstChild("TornadoBAV")
-				if bav then bav:Destroy() end
-				
+				part.Anchored = data.originalAnchored 
 				part.CanCollide = data.originalCollide 
 				part.CanQuery = data.originalQuery
 				pcall(function()
@@ -407,38 +402,30 @@ table.insert(cors, sandbox(LocalScript17, function()
 											v.CollisionGroup = TORNADO_GROUP
 										end)
 										
-										local bp = Instance.new("BodyPosition")
-										bp.Name = "TornadoBP"
-										
-										local partMass = v:GetMass()
-										bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge) 
-										bp.P = 50000 + (partMass * 25000) 
-										bp.D = 1000 + (partMass * 500) 
-										
-										bp.Parent = v
-										
-										local bav = Instance.new("BodyAngularVelocity")
-										bav.Name = "TornadoBAV"
-										bav.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-										bav.AngularVelocity = Vector3.new(math.random(-25, 25), math.random(-25, 25), math.random(-25, 25))
-										bav.Parent = v
-										
-										local pClearance = v.Size.Magnitude / 2
+										local originalAnchored = v.Anchored
+										v.Anchored = true -- Anchor to use pure CFrame math instead of physics
+										v.CanQuery = false
 										
 										partsInTornado[v] = {
-											angle = math.random(1, 360),
+											angle = math.rad(math.random(1, 360)), 
 											height = math.random(0, spawnHeightLimit), 
-											radiusMultiplier = math.random(30, 150) / 100, 
+											radiusMultiplier = math.random(10, 200) / 100, 
 											originalCollide = v.CanCollide,
 											originalQuery = v.CanQuery,
-											clearance = pClearance,
+											originalAnchored = originalAnchored,
 											upwardSpeed = math.random(50, 200) / 100,
 											spinModifier = math.random(40, 250) / 100, 
 											speedAdd = math.random(-25, 25), 
-											wobble = math.random(-8, 8) 
+											wobble = math.random(-8, 8),
+											
+											-- Custom Rotation (Tumbling) stats since we removed physics BodyAngularVelocity
+											rotX = math.random(1, 360),
+											rotY = math.random(1, 360),
+											rotZ = math.random(1, 360),
+											rotSpeedX = math.random(-10, 10),
+											rotSpeedY = math.random(-10, 10),
+											rotSpeedZ = math.random(-10, 10)
 										}
-										
-										v.CanQuery = false
 										
 										grabbedThisCycle = grabbedThisCycle + 1
 									end
@@ -463,20 +450,22 @@ table.insert(cors, sandbox(LocalScript17, function()
 			local offX = tonumber(offXBox.Text) or 0
 			local offY = tonumber(offYBox.Text) or 0
 			local offZ = tonumber(offZBox.Text) or 0
+			
+			local PULL_IN_SPEED = 500 -- Fixed pull speed you requested
 
 			for part, data in pairs(partsInTornado) do
-				if part.Parent and not part.Anchored then
+				if part.Parent then
 					
 					part.CanCollide = false
 					
 					local actualSpeed = (baseSpeed * data.spinModifier) + data.speedAdd
-					data.angle = data.angle + math.rad(actualSpeed * dt * 10)
+					data.angle = data.angle + (math.rad(actualSpeed) * dt * 40)
 					
-					local offset = Vector3.zero
+					local targetPos = Vector3.zero
 					local targetY = baseY + offY
 
 					if currentMode == "Tornado" then
-						data.height = data.height + data.upwardSpeed 
+						data.height = data.height + (data.upwardSpeed * dt * 60) 
 
 						local tHeight = tonumber(heightBox.Text) or 100
 						local uWidth = tonumber(upperWidthBox.Text) or 120
@@ -484,7 +473,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 						
 						if data.height > tHeight then 
 							data.height = 0 
-							data.radiusMultiplier = math.random(30, 150) / 100
+							data.radiusMultiplier = math.random(10, 200) / 100
 							data.upwardSpeed = math.random(50, 200) / 100
 							data.spinModifier = math.random(40, 250) / 100
 							data.speedAdd = math.random(-25, 25)
@@ -494,14 +483,14 @@ table.insert(cors, sandbox(LocalScript17, function()
 						local heightPercent = math.clamp(data.height / tHeight, 0, 1)
 						local maxRadiusAtHeight = lWidth + ((uWidth - lWidth) * (heightPercent ^ 1.5))
 						
-						local currentTornadoRadius = math.max(10, maxRadiusAtHeight * data.radiusMultiplier)
+						local currentTornadoRadius = maxRadiusAtHeight * data.radiusMultiplier
 						
 						local xOff = math.cos(data.angle) * currentTornadoRadius
 						local zOff = math.sin(data.angle) * currentTornadoRadius
 						
 						targetY = baseY + offY + data.height + data.wobble
 						
-						offset = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
+						targetPos = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
 						
 					elseif currentMode == "Ring" then
 						local rRadius = tonumber(rRadiusBox.Text) or 30
@@ -509,29 +498,36 @@ table.insert(cors, sandbox(LocalScript17, function()
 						
 						data.height = 0
 						
-						local currentRingRadius = math.max(10, rRadius + ((data.radiusMultiplier - 0.7) * rThickness))
+						local currentRingRadius = math.max(2, rRadius + ((data.radiusMultiplier - 1) * rThickness * 1.5))
 						
 						local xOff = math.cos(data.angle) * currentRingRadius
 						local zOff = math.sin(data.angle) * currentRingRadius
 						
 						targetY = baseY + offY + data.wobble
 						
-						offset = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
+						targetPos = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
 					end
 
-					local bp = part:FindFirstChild("TornadoBP")
-					if bp then
-						bp.Position = offset
+					-- Teleporting / CFrame math for pull-in speed
+					local distToTarget = (targetPos - part.Position).Magnitude
+					local stepDistance = PULL_IN_SPEED * dt
+					local nextPos = targetPos
+					
+					if distToTarget > stepDistance then
+						-- Pull in at exactly 500 speed if it's far away
+						local direction = (targetPos - part.Position).Unit
+						nextPos = part.Position + (direction * stepDistance)
 					end
+					
+					-- Custom tumbling math
+					data.rotX = data.rotX + (data.rotSpeedX * dt)
+					data.rotY = data.rotY + (data.rotSpeedY * dt)
+					data.rotZ = data.rotZ + (data.rotSpeedZ * dt)
+					
+					-- Apply the final position and rotation instantly
+					part.CFrame = CFrame.new(nextPos) * CFrame.Angles(data.rotX, data.rotY, data.rotZ)
+
 				else
-					if part.Parent then
-						part.CanCollide = data.originalCollide
-						part.CanQuery = data.originalQuery
-						pcall(function()
-							part:SetNetworkOwner(nil)
-							part.CollisionGroup = "Default"
-						end)
-					end
 					partsInTornado[part] = nil
 				end
 			end
