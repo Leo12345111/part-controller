@@ -38,8 +38,8 @@ table.insert(cors, sandbox(LocalScript17, function()
 	gui.ResetOnSpawn = false 
 
 	local frame = Instance.new("Frame", gui)
-	frame.Size = UDim2.new(0, 250, 0, 310) 
-	frame.Position = UDim2.new(0.5, -125, 0.5, -155)
+	frame.Size = UDim2.new(0, 250, 0, 360) 
+	frame.Position = UDim2.new(0.5, -125, 0.5, -180)
 	frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 	frame.Active = true
 	frame.Draggable = true
@@ -62,9 +62,49 @@ table.insert(cors, sandbox(LocalScript17, function()
 	closeBtn.Font = Enum.Font.SourceSansBold
 	closeBtn.TextSize = 16
 
+	local offLabel = Instance.new("TextLabel", frame)
+	offLabel.Size = UDim2.new(0.9, 0, 0, 20)
+	offLabel.Position = UDim2.new(0.05, 0, 0, 35)
+	offLabel.Text = "Offset (X, Y, Z):"
+	offLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	offLabel.BackgroundTransparency = 1
+	offLabel.Font = Enum.Font.SourceSansSemibold
+	offLabel.TextSize = 15
+	offLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+	local offXBox = Instance.new("TextBox", frame)
+	offXBox.Size = UDim2.new(0.28, 0, 0, 25)
+	offXBox.Position = UDim2.new(0.05, 0, 0, 55)
+	offXBox.Text = "0"
+	offXBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	offXBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+	offXBox.BorderSizePixel = 0
+	offXBox.Font = Enum.Font.SourceSans
+	offXBox.TextSize = 14
+
+	local offYBox = Instance.new("TextBox", frame)
+	offYBox.Size = UDim2.new(0.28, 0, 0, 25)
+	offYBox.Position = UDim2.new(0.36, 0, 0, 55)
+	offYBox.Text = "0"
+	offYBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	offYBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+	offYBox.BorderSizePixel = 0
+	offYBox.Font = Enum.Font.SourceSans
+	offYBox.TextSize = 14
+
+	local offZBox = Instance.new("TextBox", frame)
+	offZBox.Size = UDim2.new(0.28, 0, 0, 25)
+	offZBox.Position = UDim2.new(0.67, 0, 0, 55)
+	offZBox.Text = "0"
+	offZBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	offZBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+	offZBox.BorderSizePixel = 0
+	offZBox.Font = Enum.Font.SourceSans
+	offZBox.TextSize = 14
+
 	local speedLabel = Instance.new("TextLabel", frame)
 	speedLabel.Size = UDim2.new(0.4, 0, 0, 30)
-	speedLabel.Position = UDim2.new(0.05, 0, 0, 40)
+	speedLabel.Position = UDim2.new(0.05, 0, 0, 90)
 	speedLabel.Text = "Spin Speed:"
 	speedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 	speedLabel.BackgroundTransparency = 1
@@ -74,7 +114,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local speedBox = Instance.new("TextBox", frame)
 	speedBox.Size = UDim2.new(0.45, 0, 0, 30)
-	speedBox.Position = UDim2.new(0.5, 0, 0, 40)
+	speedBox.Position = UDim2.new(0.5, 0, 0, 90)
 	speedBox.Text = "35"
 	speedBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 	speedBox.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -84,7 +124,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local modeLabel = Instance.new("TextLabel", frame)
 	modeLabel.Size = UDim2.new(0.3, 0, 0, 30)
-	modeLabel.Position = UDim2.new(0.05, 0, 0, 80)
+	modeLabel.Position = UDim2.new(0.05, 0, 0, 130)
 	modeLabel.Text = "Mode:"
 	modeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 	modeLabel.BackgroundTransparency = 1
@@ -94,7 +134,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local modeBtn = Instance.new("TextButton", frame)
 	modeBtn.Size = UDim2.new(0.55, 0, 0, 30)
-	modeBtn.Position = UDim2.new(0.4, 0, 0, 80)
+	modeBtn.Position = UDim2.new(0.4, 0, 0, 130)
 	modeBtn.Text = "Tornado ▼"
 	modeBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
 	modeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -104,7 +144,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local dropList = Instance.new("Frame", frame)
 	dropList.Size = UDim2.new(0.55, 0, 0, 60) 
-	dropList.Position = UDim2.new(0.4, 0, 0, 110)
+	dropList.Position = UDim2.new(0.4, 0, 0, 160)
 	dropList.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 	dropList.BorderSizePixel = 0
 	dropList.Visible = false
@@ -133,7 +173,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local tornadoSettings = Instance.new("Frame", frame)
 	tornadoSettings.Size = UDim2.new(1, 0, 0, 120)
-	tornadoSettings.Position = UDim2.new(0, 0, 0, 120)
+	tornadoSettings.Position = UDim2.new(0, 0, 0, 170)
 	tornadoSettings.BackgroundTransparency = 1
 	tornadoSettings.Visible = true
 
@@ -199,7 +239,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local ringSettings = Instance.new("Frame", frame)
 	ringSettings.Size = UDim2.new(1, 0, 0, 120)
-	ringSettings.Position = UDim2.new(0, 0, 0, 120)
+	ringSettings.Position = UDim2.new(0, 0, 0, 170)
 	ringSettings.BackgroundTransparency = 1
 	ringSettings.Visible = false 
 
@@ -267,7 +307,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local toggleBtn = Instance.new("TextButton", frame)
 	toggleBtn.Size = UDim2.new(0.9, 0, 0, 40)
-	toggleBtn.Position = UDim2.new(0.05, 0, 0, 255)
+	toggleBtn.Position = UDim2.new(0.05, 0, 0, 305)
 	toggleBtn.Text = "System: OFF"
 	toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
 	toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -315,7 +355,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 		toggleBtn.Text = "System: ON"
 		toggleBtn.BackgroundColor3 = Color3.fromRGB(200, 100, 0)
 		
-		-- DETECTION LOOP: Runs 2 times per second (task.wait(0.5))
 		task.spawn(function()
 			while isSystemActive do
 				local char = player.Character
@@ -331,7 +370,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 					end
 
 					local grabbedThisCycle = 0
-					-- Slightly increased grab limit since it checks less often
 					local maxGrabsPerCycle = 15 
 
 					for _, v in pairs(workspace:GetDescendants()) do
@@ -373,15 +411,15 @@ table.insert(cors, sandbox(LocalScript17, function()
 										bp.Name = "TornadoBP"
 										
 										local partMass = v:GetMass()
-										bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-										bp.P = 150000 + (partMass * 5000) 
-										bp.D = 1500 
+										bp.MaxForce = Vector3.new(1, 1, 1) * (partMass * 60000)
+										bp.P = 50000 + (partMass * 2000) 
+										bp.D = 1000 + (partMass * 100) 
 										
 										bp.Parent = v
 										
 										local bav = Instance.new("BodyAngularVelocity")
 										bav.Name = "TornadoBAV"
-										bav.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+										bav.MaxTorque = Vector3.new(1, 1, 1) * (partMass * 5000)
 										bav.AngularVelocity = Vector3.new(math.random(-15, 15), math.random(-15, 15), math.random(-15, 15))
 										bav.Parent = v
 										
@@ -408,13 +446,11 @@ table.insert(cors, sandbox(LocalScript17, function()
 						end
 					end
 				end
-				-- Wait 0.5 seconds (2 times per second)
 				task.wait(0.5) 
 			end
 		end)
 		
-		-- MOVEMENT LOOP: Runs every single frame (Heartbeat)
-		connection = runService.Heartbeat:Connect(function()
+		connection = runService.Heartbeat:Connect(function(dt)
 			local char = player.Character
 			if not char or not char:FindFirstChild("HumanoidRootPart") then return end
 			local root = char.HumanoidRootPart
@@ -422,6 +458,9 @@ table.insert(cors, sandbox(LocalScript17, function()
 			local baseY = root.Position.Y - 5 
 			
 			local baseSpeed = tonumber(speedBox.Text) or 35
+			local offX = tonumber(offXBox.Text) or 0
+			local offY = tonumber(offYBox.Text) or 0
+			local offZ = tonumber(offZBox.Text) or 0
 
 			for part, data in pairs(partsInTornado) do
 				if part.Parent and not part.Anchored then
@@ -429,10 +468,10 @@ table.insert(cors, sandbox(LocalScript17, function()
 					part.CanCollide = false
 					
 					local actualSpeed = (baseSpeed * data.spinModifier) + data.speedAdd
-					data.angle = data.angle + math.rad(actualSpeed)
+					data.angle = data.angle + math.rad(actualSpeed * dt * 10)
 					
 					local offset = Vector3.zero
-					local targetY = baseY
+					local targetY = baseY + offY
 
 					if currentMode == "Tornado" then
 						data.height = data.height + data.upwardSpeed 
@@ -457,9 +496,9 @@ table.insert(cors, sandbox(LocalScript17, function()
 						local xOff = math.cos(data.angle) * currentTornadoRadius
 						local zOff = math.sin(data.angle) * currentTornadoRadius
 						
-						targetY = baseY + data.height 
+						targetY = baseY + offY + data.height 
 						
-						offset = Vector3.new(root.Position.X + xOff, targetY, root.Position.Z + zOff)
+						offset = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
 						
 					elseif currentMode == "Ring" then
 						local rRadius = tonumber(rRadiusBox.Text) or 30
@@ -472,9 +511,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 						local xOff = math.cos(data.angle) * currentRingRadius
 						local zOff = math.sin(data.angle) * currentRingRadius
 						
-						targetY = baseY
-						
-						offset = Vector3.new(root.Position.X + xOff, targetY, root.Position.Z + zOff)
+						offset = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
 					end
 
 					local bp = part:FindFirstChild("TornadoBP")
