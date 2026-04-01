@@ -315,6 +315,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 		toggleBtn.Text = "System: ON"
 		toggleBtn.BackgroundColor3 = Color3.fromRGB(200, 100, 0)
 		
+		-- DETECTION LOOP: Runs 2 times per second (task.wait(0.5))
 		task.spawn(function()
 			while isSystemActive do
 				local char = player.Character
@@ -330,13 +331,13 @@ table.insert(cors, sandbox(LocalScript17, function()
 					end
 
 					local grabbedThisCycle = 0
-					local maxGrabsPerCycle = 8
+					-- Slightly increased grab limit since it checks less often
+					local maxGrabsPerCycle = 15 
 
 					for _, v in pairs(workspace:GetDescendants()) do
 						if grabbedThisCycle >= maxGrabsPerCycle then break end
 						
 						if v:IsA("BasePart") then
-							-- NEW FIX: Make sure the part does not belong to ANY player in the server
 							local isPlayerPart = false
 							for _, p in pairs(players:GetPlayers()) do
 								if p.Character and v:IsDescendantOf(p.Character) then
@@ -348,12 +349,10 @@ table.insert(cors, sandbox(LocalScript17, function()
 							if not v.Anchored and not isPlayerPart then
 								local dist = (v.Position - root.Position).Magnitude
 								
-								-- Check both max range and minimum range (20 studs)
 								if dist <= sRange and dist >= 20 and not partsInTornado[v] then
 									
 									local isAttachedToPlayer = false
 									for _, connectedPart in pairs(v:GetConnectedParts()) do
-										-- NEW FIX: Also make sure the part isn't physically welded/connected to a player
 										for _, p in pairs(players:GetPlayers()) do
 											if p.Character and connectedPart:IsDescendantOf(p.Character) then
 												isAttachedToPlayer = true
@@ -409,10 +408,12 @@ table.insert(cors, sandbox(LocalScript17, function()
 						end
 					end
 				end
-				task.wait(0.05) 
+				-- Wait 0.5 seconds (2 times per second)
+				task.wait(0.5) 
 			end
 		end)
 		
+		-- MOVEMENT LOOP: Runs every single frame (Heartbeat)
 		connection = runService.Heartbeat:Connect(function()
 			local char = player.Character
 			if not char or not char:FindFirstChild("HumanoidRootPart") then return end
