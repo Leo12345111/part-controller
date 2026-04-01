@@ -44,6 +44,7 @@ table.insert(cors, sandbox(Script16, function()
 		if part and typeof(part) == "Instance" and part:IsA("BasePart") then
 			if action == "Grab" then
 				pcall(function() 
+					part:BreakJoints()
 					part:SetNetworkOwner(player) 
 					part.CollisionGroup = TORNADO_GROUP
 				end)
@@ -395,7 +396,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 										bp.MaxForce = Vector3.new(forceLimit, forceLimit, forceLimit)
 										
 										bp.P = 40000 + (partMass * 3000) 
-										bp.D = 4000 
+										bp.D = 6000 
 										
 										bp.Parent = v
 										
