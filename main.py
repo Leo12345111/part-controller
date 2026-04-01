@@ -383,7 +383,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 								end
 							end
 
-							if not v.Anchored and not isPlayerPart and v.ReceiveAge == 0 then
+							if not v.Anchored and not isPlayerPart then
 								local dist = (v.Position - root.Position).Magnitude
 								
 								if dist <= sRange and dist >= 20 and not partsInTornado[v] then
@@ -407,12 +407,13 @@ table.insert(cors, sandbox(LocalScript17, function()
 										
 										v.CanQuery = false
 										
+										-- THE SUCK-IN PHYSICS
 										local bp = Instance.new("BodyPosition")
 										bp.Name = "TornadoBP"
 										local partMass = v:GetMass()
 										bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge) 
-										bp.P = 100000 + (partMass * 50000) 
-										bp.D = 1000 + (partMass * 100) 
+										bp.P = 500000 -- Max power
+										bp.D = 1000 
 										bp.Parent = v
 										
 										local bav = Instance.new("BodyAngularVelocity")
@@ -422,7 +423,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 										bav.Parent = v
 
 										partsInTornado[v] = {
-											isOrbiting = false, 
+											isOrbiting = false, -- False means it is flying towards you using Physics
 											angle = math.rad(math.random(1, 360)), 
 											height = math.random(0, spawnHeightLimit), 
 											radiusMultiplier = math.random(10, 200) / 100, 
@@ -476,6 +477,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 					
 					local targetPos = Vector3.zero
 					local targetY = baseY + offY
+					local currentFunnelRadius = 0 -- Needed to calculate if it entered the tornado
 
 					if currentMode == "Tornado" then
 						data.height = data.height + (data.upwardSpeed * dt * 60) 
@@ -496,13 +498,12 @@ table.insert(cors, sandbox(LocalScript17, function()
 						local heightPercent = math.clamp(data.height / tHeight, 0, 1)
 						local maxRadiusAtHeight = lWidth + ((uWidth - lWidth) * (heightPercent ^ 1.5))
 						
-						local currentTornadoRadius = maxRadiusAtHeight * data.radiusMultiplier
+						currentFunnelRadius = maxRadiusAtHeight * data.radiusMultiplier
 						
-						local xOff = math.cos(data.angle) * currentTornadoRadius
-						local zOff = math.sin(data.angle) * currentTornadoRadius
+						local xOff = math.cos(data.angle) * currentFunnelRadius
+						local zOff = math.sin(data.angle) * currentFunnelRadius
 						
 						targetY = baseY + offY + data.height + data.wobble
-						
 						targetPos = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
 						
 					elseif currentMode == "Ring" then
@@ -511,32 +512,37 @@ table.insert(cors, sandbox(LocalScript17, function()
 						
 						data.height = 0
 						
-						local currentRingRadius = math.max(2, rRadius + ((data.radiusMultiplier - 1) * rThickness * 1.5))
+						currentFunnelRadius = math.max(2, rRadius + ((data.radiusMultiplier - 1) * rThickness * 1.5))
 						
-						local xOff = math.cos(data.angle) * currentRingRadius
-						local zOff = math.sin(data.angle) * currentRingRadius
+						local xOff = math.cos(data.angle) * currentFunnelRadius
+						local zOff = math.sin(data.angle) * currentFunnelRadius
 						
 						targetY = baseY + offY + data.wobble
-						
 						targetPos = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
 					end
 
 					if not data.isOrbiting then
+						-- FLYING IN PHASE
 						local bp = part:FindFirstChild("TornadoBP")
 						if bp then
-							bp.Position = targetPos
+							-- Pull it directly to the center of the player/tornado to guarantee it catches
+							bp.Position = Vector3.new(root.Position.X + offX, targetY, root.Position.Z + offZ)
 						end
 						
-						local distToTarget = (targetPos - part.Position).Magnitude
-						if distToTarget <= 15 then
+						-- Calculate how close it is to the player horizontally
+						local horizontalDistToPlayer = Vector3.new(part.Position.X - root.Position.X, 0, part.Position.Z - root.Position.Z).Magnitude
+						
+						-- THE TRANSITION TRIGGER: If it enters the tornado funnel width, catch it!
+						if horizontalDistToPlayer <= (currentFunnelRadius + 15) then
 							data.isOrbiting = true
-							part.Anchored = true 
+							part.Anchored = false 
 							
 							if bp then bp:Destroy() end
 							local bav = part:FindFirstChild("TornadoBAV")
 							if bav then bav:Destroy() end
 						end
 					else
+						-- ORBITING PHASE (TP/CFrame)
 						data.rotX = data.rotX + (data.rotSpeedX * dt)
 						data.rotY = data.rotY + (data.rotSpeedY * dt)
 						data.rotZ = data.rotZ + (data.rotSpeedZ * dt)
