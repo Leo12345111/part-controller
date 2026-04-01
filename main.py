@@ -113,7 +113,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 	local speedBox = Instance.new("TextBox", frame)
 	speedBox.Size = UDim2.new(0.45, 0, 0, 30)
 	speedBox.Position = UDim2.new(0.5, 0, 0, 40)
-	speedBox.Text = "15"
+	speedBox.Text = "35"
 	speedBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 	speedBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 	speedBox.BorderSizePixel = 0
@@ -188,7 +188,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 	local heightBox = Instance.new("TextBox", tornadoSettings)
 	heightBox.Size = UDim2.new(0.45, 0, 0, 30)
 	heightBox.Position = UDim2.new(0.5, 0, 0, 0)
-	heightBox.Text = "60"
+	heightBox.Text = "120"
 	heightBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 	heightBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 	heightBox.BorderSizePixel = 0
@@ -208,7 +208,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 	local upperWidthBox = Instance.new("TextBox", tornadoSettings)
 	upperWidthBox.Size = UDim2.new(0.45, 0, 0, 30)
 	upperWidthBox.Position = UDim2.new(0.5, 0, 0, 40)
-	upperWidthBox.Text = "45"
+	upperWidthBox.Text = "120"
 	upperWidthBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 	upperWidthBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 	upperWidthBox.BorderSizePixel = 0
@@ -228,7 +228,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 	local lowerWidthBox = Instance.new("TextBox", tornadoSettings)
 	lowerWidthBox.Size = UDim2.new(0.45, 0, 0, 30)
 	lowerWidthBox.Position = UDim2.new(0.5, 0, 0, 80)
-	lowerWidthBox.Text = "15"
+	lowerWidthBox.Text = "5"
 	lowerWidthBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 	lowerWidthBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 	lowerWidthBox.BorderSizePixel = 0
@@ -337,6 +337,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 				if bav then bav:Destroy() end
 				
 				part.CanCollide = data.originalCollide 
+				part.CanQuery = data.originalQuery
 				networkEvent:FireServer("Release", part)
 			end
 		end
@@ -354,17 +355,17 @@ table.insert(cors, sandbox(LocalScript17, function()
 				local char = player.Character
 				if char and char:FindFirstChild("HumanoidRootPart") then
 					local root = char.HumanoidRootPart
-					local sRange = 500 
+					local sRange = 600 
 					
 					local spawnHeightLimit = 20
 					if currentMode == "Tornado" then
-						spawnHeightLimit = tonumber(heightBox.Text) or 60
+						spawnHeightLimit = tonumber(heightBox.Text) or 100
 					elseif currentMode == "Ring" then
 						spawnHeightLimit = 0 
 					end
 
 					local grabbedThisCycle = 0
-					local maxGrabsPerCycle = 4
+					local maxGrabsPerCycle = 8
 
 					for _, v in pairs(workspace:GetDescendants()) do
 						if grabbedThisCycle >= maxGrabsPerCycle then break end
@@ -393,8 +394,8 @@ table.insert(cors, sandbox(LocalScript17, function()
 										local forceLimit = partMass * 50000 
 										bp.MaxForce = Vector3.new(forceLimit, forceLimit, forceLimit)
 										
-										bp.P = 150000 + (partMass * 10000) 
-										bp.D = 8000 
+										bp.P = 40000 + (partMass * 3000) 
+										bp.D = 4000 
 										
 										bp.Parent = v
 										
@@ -404,17 +405,20 @@ table.insert(cors, sandbox(LocalScript17, function()
 										bav.AngularVelocity = Vector3.new(math.random(-15, 15), math.random(-15, 15), math.random(-15, 15))
 										bav.Parent = v
 										
-										local clearance = v.Size.Magnitude / 2
+										local pClearance = v.Size.Magnitude / 2
 										
 										partsInTornado[v] = {
 											angle = math.random(1, 360),
-											height = math.random(-3, spawnHeightLimit), 
-											thicknessOffset = (math.random() - 0.5) * 2, 
-											clearance = clearance,
+											height = math.random(0, spawnHeightLimit), 
+											radiusMultiplier = math.random(40, 100) / 100, 
 											originalCollide = v.CanCollide,
-											upwardSpeed = math.random(20, 80) / 100,
-											spinModifier = math.random(70, 130) / 100
+											originalQuery = v.CanQuery,
+											clearance = pClearance,
+											upwardSpeed = math.random(40, 120) / 100,
+											spinModifier = math.random(60, 140) / 100
 										}
+										
+										v.CanQuery = false
 										
 										grabbedThisCycle = grabbedThisCycle + 1
 									end
@@ -423,7 +427,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 						end
 					end
 				end
-				task.wait(0.1) 
+				task.wait(0.05) 
 			end
 		end)
 		
@@ -432,7 +436,17 @@ table.insert(cors, sandbox(LocalScript17, function()
 			if not char or not char:FindFirstChild("HumanoidRootPart") then return end
 			local root = char.HumanoidRootPart
 			
-			local speed = tonumber(speedBox.Text) or 15
+			local groundY = root.Position.Y - 3
+			local rayParams = RaycastParams.new()
+			rayParams.FilterDescendantsInstances = {char}
+			rayParams.FilterType = Enum.RaycastFilterType.Exclude
+			
+			local rayResult = workspace:Raycast(root.Position, Vector3.new(0, -500, 0), rayParams)
+			if rayResult then
+				groundY = rayResult.Position.Y
+			end
+			
+			local speed = tonumber(speedBox.Text) or 35
 
 			for part, data in pairs(partsInTornado) do
 				if part.Parent and not part.Anchored then
@@ -441,30 +455,31 @@ table.insert(cors, sandbox(LocalScript17, function()
 					data.angle = data.angle + math.rad(speed * data.spinModifier)
 					
 					local offset = Vector3.zero
+					local targetY = groundY
 
 					if currentMode == "Tornado" then
 						data.height = data.height + data.upwardSpeed 
 
-						local tHeight = tonumber(heightBox.Text) or 60
-						local uWidth = tonumber(upperWidthBox.Text) or 45
-						local lWidth = tonumber(lowerWidthBox.Text) or 15
+						local tHeight = tonumber(heightBox.Text) or 100
+						local uWidth = tonumber(upperWidthBox.Text) or 120
+						local lWidth = tonumber(lowerWidthBox.Text) or 5
 						
 						if data.height > tHeight then 
-							data.height = -3 
-							data.thicknessOffset = (math.random() - 0.5) * 2 
-							data.upwardSpeed = math.random(20, 80) / 100
-							data.spinModifier = math.random(70, 130) / 100
+							data.height = 0 
+							data.radiusMultiplier = math.random(40, 100) / 100
+							data.upwardSpeed = math.random(40, 120) / 100
+							data.spinModifier = math.random(60, 140) / 100
 						end
 
-						local currentProgress = data.height + 3
-						local totalTravel = tHeight + 3
-						local heightPercent = math.clamp(currentProgress / totalTravel, 0, 1)
+						local heightPercent = math.clamp(data.height / tHeight, 0, 1)
+						local maxRadiusAtHeight = lWidth + ((uWidth - lWidth) * (heightPercent ^ 1.5))
+						local currentTornadoRadius = maxRadiusAtHeight * data.radiusMultiplier
 						
-						local currentTornadoRadius = lWidth + ((uWidth - lWidth) * (heightPercent ^ 2))
+						local xOff = math.cos(data.angle) * currentTornadoRadius
+						local zOff = math.sin(data.angle) * currentTornadoRadius
+						targetY = groundY + data.clearance + data.height
 						
-						currentTornadoRadius = currentTornadoRadius + (data.thicknessOffset * 8)
-						
-						offset = Vector3.new(math.cos(data.angle) * currentTornadoRadius, data.height, math.sin(data.angle) * currentTornadoRadius)
+						offset = Vector3.new(root.Position.X + xOff, targetY, root.Position.Z + zOff)
 						
 					elseif currentMode == "Ring" then
 						local rRadius = tonumber(rRadiusBox.Text) or 30
@@ -472,18 +487,23 @@ table.insert(cors, sandbox(LocalScript17, function()
 						
 						data.height = 0
 						
-						local currentRingRadius = rRadius + (data.thicknessOffset * (rThickness / 2))
+						local currentRingRadius = rRadius + ((data.radiusMultiplier - 0.7) * rThickness)
 						
-						offset = Vector3.new(math.cos(data.angle) * currentRingRadius, data.height, math.sin(data.angle) * currentRingRadius)
+						local xOff = math.cos(data.angle) * currentRingRadius
+						local zOff = math.sin(data.angle) * currentRingRadius
+						targetY = root.Position.Y
+						
+						offset = Vector3.new(root.Position.X + xOff, targetY, root.Position.Z + zOff)
 					end
 
 					local bp = part:FindFirstChild("TornadoBP")
 					if bp then
-						bp.Position = root.Position + offset
+						bp.Position = offset
 					end
 				else
 					if part.Parent then
 						part.CanCollide = data.originalCollide
+						part.CanQuery = data.originalQuery
 						networkEvent:FireServer("Release", part)
 					end
 					partsInTornado[part] = nil
