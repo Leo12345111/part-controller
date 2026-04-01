@@ -195,6 +195,8 @@ table.insert(cors, sandbox(LocalScript17, function()
 	lowerWidthBox.Font = Enum.Font.SourceSans
 	lowerWidthBox.TextSize = 16
 
+	local ringSettings = Instance.new("Frame", ringSettings)
+	-- Fix for missing ringSettings parent initialization
 	local ringSettings = Instance.new("Frame", frame)
 	ringSettings.Size = UDim2.new(1, 0, 0, 120)
 	ringSettings.Position = UDim2.new(0, 0, 0, 120)
@@ -403,17 +405,12 @@ table.insert(cors, sandbox(LocalScript17, function()
 			if not char or not char:FindFirstChild("HumanoidRootPart") then return end
 			local root = char.HumanoidRootPart
 			
-			local groundY = root.Position.Y - 3
-			local rayParams = RaycastParams.new()
-			rayParams.FilterDescendantsInstances = {char}
-			rayParams.FilterType = Enum.RaycastFilterType.Exclude
-			
-			local rayResult = workspace:Raycast(root.Position, Vector3.new(0, -500, 0), rayParams)
-			if rayResult then
-				groundY = rayResult.Position.Y
-			end
+			-- Base height set to the bottom of the foot
+			local footY = root.Position.Y - 3.1 
 			
 			local speed = tonumber(speedBox.Text) or 35
+			-- Speed multiplier that scales the radius based on current speed relative to 35
+			local speedRadiusMod = math.abs(speed) / 35 
 
 			for part, data in pairs(partsInTornado) do
 				if part.Parent and not part.Anchored then
@@ -422,7 +419,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 					data.angle = data.angle + math.rad(speed * data.spinModifier)
 					
 					local offset = Vector3.zero
-					local targetY = groundY
+					local targetY = footY
 
 					if currentMode == "Tornado" then
 						data.height = data.height + data.upwardSpeed 
@@ -440,11 +437,13 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 						local heightPercent = math.clamp(data.height / tHeight, 0, 1)
 						local maxRadiusAtHeight = lWidth + ((uWidth - lWidth) * (heightPercent ^ 1.5))
-						local currentTornadoRadius = maxRadiusAtHeight * data.radiusMultiplier
+						
+						-- Multiply tornado radius by the speed modifier
+						local currentTornadoRadius = (maxRadiusAtHeight * data.radiusMultiplier) * speedRadiusMod
 						
 						local xOff = math.cos(data.angle) * currentTornadoRadius
 						local zOff = math.sin(data.angle) * currentTornadoRadius
-						targetY = groundY + data.clearance + data.height
+						targetY = footY + data.clearance + data.height
 						
 						offset = Vector3.new(root.Position.X + xOff, targetY, root.Position.Z + zOff)
 						
@@ -454,7 +453,8 @@ table.insert(cors, sandbox(LocalScript17, function()
 						
 						data.height = 0
 						
-						local currentRingRadius = rRadius + ((data.radiusMultiplier - 0.7) * rThickness)
+						-- Multiply ring radius by the speed modifier
+						local currentRingRadius = (rRadius + ((data.radiusMultiplier - 0.7) * rThickness)) * speedRadiusMod
 						
 						local xOff = math.cos(data.angle) * currentRingRadius
 						local zOff = math.sin(data.angle) * currentRingRadius
