@@ -332,6 +332,10 @@ table.insert(cors, sandbox(LocalScript17, function()
 			if part and part.Parent then
 				local bp = part:FindFirstChild("TornadoBP")
 				if bp then bp:Destroy() end
+				
+				local bav = part:FindFirstChild("TornadoBAV")
+				if bav then bav:Destroy() end
+				
 				part.CanCollide = data.originalCollide 
 				networkEvent:FireServer("Release", part)
 			end
@@ -394,12 +398,18 @@ table.insert(cors, sandbox(LocalScript17, function()
 										
 										bp.Parent = v
 										
+										local bav = Instance.new("BodyAngularVelocity")
+										bav.Name = "TornadoBAV"
+										bav.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+										bav.AngularVelocity = Vector3.new(math.random(-15, 15), math.random(-15, 15), math.random(-15, 15))
+										bav.Parent = v
+										
 										local clearance = v.Size.Magnitude / 2
 										
 										partsInTornado[v] = {
 											angle = math.random(1, 360),
 											height = math.random(-3, spawnHeightLimit), 
-											thicknessOffset = math.random(),
+											thicknessOffset = (math.random() - 0.5) * 2, 
 											clearance = clearance,
 											originalCollide = v.CanCollide,
 											upwardSpeed = math.random(20, 80) / 100,
@@ -441,18 +451,18 @@ table.insert(cors, sandbox(LocalScript17, function()
 						
 						if data.height > tHeight then 
 							data.height = -3 
-							data.thicknessOffset = math.random() 
+							data.thicknessOffset = (math.random() - 0.5) * 2 
 							data.upwardSpeed = math.random(20, 80) / 100
 							data.spinModifier = math.random(70, 130) / 100
 						end
 
-						local totalTravel = tHeight
-						local currentProgress = data.height
+						local currentProgress = data.height + 3
+						local totalTravel = tHeight + 3
 						local heightPercent = math.clamp(currentProgress / totalTravel, 0, 1)
-						local outerRadiusAtHeight = lWidth + ((uWidth - lWidth) * heightPercent)
 						
-						local baseRadius = 15 + data.clearance 
-						local currentTornadoRadius = baseRadius + (outerRadiusAtHeight * data.thicknessOffset)
+						local currentTornadoRadius = lWidth + ((uWidth - lWidth) * (heightPercent ^ 2))
+						
+						currentTornadoRadius = currentTornadoRadius + (data.thicknessOffset * 8)
 						
 						offset = Vector3.new(math.cos(data.angle) * currentTornadoRadius, data.height, math.sin(data.angle) * currentTornadoRadius)
 						
@@ -462,8 +472,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 						
 						data.height = 0
 						
-						local baseRingRadius = rRadius + data.clearance
-						local currentRingRadius = baseRingRadius + (rThickness * data.thicknessOffset)
+						local currentRingRadius = rRadius + (data.thicknessOffset * (rThickness / 2))
 						
 						offset = Vector3.new(math.cos(data.angle) * currentRingRadius, data.height, math.sin(data.angle) * currentRingRadius)
 					end
