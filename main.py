@@ -359,7 +359,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 										bp.Name = "TornadoBP"
 										
 										local partMass = v:GetMass()
-										-- Make the BodyPosition much more forceful and responsive so parts don't lag behind the speed
 										bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
 										bp.P = 150000 + (partMass * 5000) 
 										bp.D = 1500 
@@ -382,7 +381,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 											originalQuery = v.CanQuery,
 											clearance = pClearance,
 											upwardSpeed = math.random(40, 120) / 100,
-											-- Random multiplier (0.5x to 1.8x) AND a random addition (-8 to +8) for chaotic speed
 											spinModifier = math.random(50, 180) / 100,
 											speedAdd = math.random(-8, 8)
 										}
@@ -405,7 +403,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 			if not char or not char:FindFirstChild("HumanoidRootPart") then return end
 			local root = char.HumanoidRootPart
 			
-			-- The absolute bottom base is strictly set to 5 studs below the root part
 			local baseY = root.Position.Y - 5 
 			
 			local baseSpeed = tonumber(speedBox.Text) or 35
@@ -415,7 +412,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 					
 					part.CanCollide = false
 					
-					-- Calculate the actual speed for this specific part
 					local actualSpeed = (baseSpeed * data.spinModifier) + data.speedAdd
 					data.angle = data.angle + math.rad(actualSpeed)
 					
@@ -440,13 +436,11 @@ table.insert(cors, sandbox(LocalScript17, function()
 						local heightPercent = math.clamp(data.height / tHeight, 0, 1)
 						local maxRadiusAtHeight = lWidth + ((uWidth - lWidth) * (heightPercent ^ 1.5))
 						
-						-- Radius is completely decoupled from speed now
-						local currentTornadoRadius = maxRadiusAtHeight * data.radiusMultiplier
+						local currentTornadoRadius = math.max(15, maxRadiusAtHeight * data.radiusMultiplier)
 						
 						local xOff = math.cos(data.angle) * currentTornadoRadius
 						local zOff = math.sin(data.angle) * currentTornadoRadius
 						
-						-- Height builds strictly upwards from the -5 base
 						targetY = baseY + data.height 
 						
 						offset = Vector3.new(root.Position.X + xOff, targetY, root.Position.Z + zOff)
@@ -457,8 +451,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 						
 						data.height = 0
 						
-						-- Radius is completely decoupled from speed now
-						local currentRingRadius = rRadius + ((data.radiusMultiplier - 0.7) * rThickness)
+						local currentRingRadius = math.max(15, rRadius + ((data.radiusMultiplier - 0.7) * rThickness))
 						
 						local xOff = math.cos(data.angle) * currentRingRadius
 						local zOff = math.sin(data.angle) * currentRingRadius
