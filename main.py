@@ -35,10 +35,10 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local gui = Instance.new("ScreenGui", playerGui)
 	gui.Name = "TornadoUI"
-	gui.ResetOnSpawn = false 
+	gui.ResetOnSpawn = false
 
 	local frame = Instance.new("Frame", gui)
-	frame.Size = UDim2.new(0, 250, 0, 360) 
+	frame.Size = UDim2.new(0, 250, 0, 360)
 	frame.Position = UDim2.new(0.5, -125, 0.5, -180)
 	frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 	frame.Active = true
@@ -143,12 +143,12 @@ table.insert(cors, sandbox(LocalScript17, function()
 	modeBtn.TextSize = 14
 
 	local dropList = Instance.new("Frame", frame)
-	dropList.Size = UDim2.new(0.55, 0, 0, 60) 
+	dropList.Size = UDim2.new(0.55, 0, 0, 60)
 	dropList.Position = UDim2.new(0.4, 0, 0, 160)
 	dropList.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 	dropList.BorderSizePixel = 0
 	dropList.Visible = false
-	dropList.ZIndex = 10 
+	dropList.ZIndex = 10
 
 	local optTornado = Instance.new("TextButton", dropList)
 	optTornado.Size = UDim2.new(1, 0, 0.5, 0)
@@ -241,7 +241,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 	ringSettings.Size = UDim2.new(1, 0, 0, 120)
 	ringSettings.Position = UDim2.new(0, 0, 0, 170)
 	ringSettings.BackgroundTransparency = 1
-	ringSettings.Visible = false 
+	ringSettings.Visible = false
 
 	local rRadiusLabel = Instance.new("TextLabel", ringSettings)
 	rRadiusLabel.Size = UDim2.new(0.4, 0, 0, 30)
@@ -293,7 +293,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 		currentMode = "Tornado"
 		modeBtn.Text = "Tornado ▼"
 		dropList.Visible = false
-		tornadoSettings.Visible = true 
+		tornadoSettings.Visible = true
 		ringSettings.Visible = false
 	end)
 
@@ -302,7 +302,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 		modeBtn.Text = "Ring ▼"
 		dropList.Visible = false
 		tornadoSettings.Visible = false
-		ringSettings.Visible = true 
+		ringSettings.Visible = true
 	end)
 
 	local toggleBtn = Instance.new("TextButton", frame)
@@ -337,7 +337,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 				local bav = part:FindFirstChild("TornadoBAV")
 				if bav then bav:Destroy() end
 
-				part.CanCollide = data.originalCollide 
+				part.CanCollide = data.originalCollide
 				part.CanQuery = data.originalQuery
 				pcall(function()
 					part.CollisionGroup = "Default"
@@ -358,17 +358,17 @@ table.insert(cors, sandbox(LocalScript17, function()
 				local char = player.Character
 				if char and char:FindFirstChild("HumanoidRootPart") then
 					local root = char.HumanoidRootPart
-					local sRange = 600 
+					local sRange = 600
 					
 					local spawnHeightLimit = 20
 					if currentMode == "Tornado" then
 						spawnHeightLimit = tonumber(heightBox.Text) or 100
 					elseif currentMode == "Ring" then
-						spawnHeightLimit = 0 
+						spawnHeightLimit = 0
 					end
 
 					local grabbedThisCycle = 0
-					local maxGrabsPerCycle = 15 
+					local maxGrabsPerCycle = 15
 
 					for _, v in pairs(workspace:GetDescendants()) do
 						if grabbedThisCycle >= maxGrabsPerCycle then break end
@@ -406,31 +406,27 @@ table.insert(cors, sandbox(LocalScript17, function()
 										
 										v.CanQuery = false
 										
-										-- PURE PHYSICS SETUP
 										local bp = Instance.new("BodyPosition")
 										bp.Name = "TornadoBP"
-										local partMass = v:GetMass()
-										-- Extremely high MaxForce and P so it aggressively snaps to the orbit path
-										bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge) 
-										bp.P = 500000 + (partMass * 50000) 
-										bp.D = 1000 + (partMass * 100) 
+										bp.MaxForce = Vector3.new(math.huge * math.huge, math.huge * math.huge, math.huge * math.huge)
+										bp.P = 100000
 										bp.Parent = v
 										
 										local bav = Instance.new("BodyAngularVelocity")
 										bav.Name = "TornadoBAV"
-										bav.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+										bav.MaxTorque = Vector3.new(math.huge * math.huge, math.huge * math.huge, math.huge * math.huge)
 										bav.AngularVelocity = Vector3.new(math.random(-50, 50), math.random(-50, 50), math.random(-50, 50))
 										bav.Parent = v
 
 										partsInTornado[v] = {
-											angle = math.rad(math.random(1, 360)), 
-											height = math.random(0, spawnHeightLimit), 
-											radiusMultiplier = math.random(10, 200) / 100, 
+											angle = math.rad(math.random(1, 360)),
+											height = math.random(0, spawnHeightLimit),
+											radiusMultiplier = math.random(10, 200) / 100,
 											originalCollide = v.CanCollide,
 											originalQuery = v.CanQuery,
 											upwardSpeed = math.random(50, 200) / 100,
-											spinModifier = math.random(40, 250) / 100, 
-											speedAdd = math.random(-25, 25), 
+											spinModifier = math.random(40, 250) / 100,
+											speedAdd = math.random(-25, 25),
 											wobble = math.random(-8, 8)
 										}
 										
@@ -441,7 +437,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 						end
 					end
 				end
-				task.wait(0.5) 
+				task.wait(0.5)
 			end
 		end)
 		
@@ -451,7 +447,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 			local root = char.HumanoidRootPart
 			
 			local leg = char:FindFirstChild("Right Leg") or char:FindFirstChild("RightLowerLeg") or char:FindFirstChild("Left Leg") or char:FindFirstChild("LeftLowerLeg") or root
-			local baseY = leg.Position.Y 
+			local baseY = leg.Position.Y
 			
 			local baseSpeed = tonumber(speedBox.Text) or 35
 			local offX = tonumber(offXBox.Text) or 0
@@ -462,6 +458,8 @@ table.insert(cors, sandbox(LocalScript17, function()
 				if part.Parent and not part.Anchored then
 					
 					part.CanCollide = false
+					part.Velocity = Vector3.new(0,0,0)
+					part.RotVelocity = Vector3.new(0,0,0)
 					
 					local actualSpeed = (baseSpeed * data.spinModifier) + data.speedAdd
 					data.angle = data.angle + (math.rad(actualSpeed) * dt * 40)
@@ -470,14 +468,14 @@ table.insert(cors, sandbox(LocalScript17, function()
 					local targetY = baseY + offY
 
 					if currentMode == "Tornado" then
-						data.height = data.height + (data.upwardSpeed * dt * 60) 
+						data.height = data.height + (data.upwardSpeed * dt * 60)
 
 						local tHeight = tonumber(heightBox.Text) or 100
 						local uWidth = tonumber(upperWidthBox.Text) or 120
 						local lWidth = tonumber(lowerWidthBox.Text) or 5
 						
-						if data.height > tHeight then 
-							data.height = 0 
+						if data.height > tHeight then
+							data.height = 0
 							data.radiusMultiplier = math.random(10, 200) / 100
 							data.upwardSpeed = math.random(50, 200) / 100
 							data.spinModifier = math.random(40, 250) / 100
@@ -513,14 +511,11 @@ table.insert(cors, sandbox(LocalScript17, function()
 						targetPos = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
 					end
 
-					-- PURE PHYSICS UPDATE:
-					-- Constantly update the BodyPosition to the calculated orbit target.
 					local bp = part:FindFirstChild("TornadoBP")
 					if bp then
 						bp.Position = targetPos
 					end
 				else
-					-- If the part got deleted or anchored by another script, clean it up
 					if part.Parent then
 						part.CanCollide = data.originalCollide
 						part.CanQuery = data.originalQuery
