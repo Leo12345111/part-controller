@@ -377,7 +377,8 @@ table.insert(cors, sandbox(LocalScript17, function()
 								end
 							end
 
-							if not v.Anchored and not isPlayerPart then
+							-- MODIFIED: Ensure unanchored, not player, AND moving faster than 2 studs/sec
+							if not v.Anchored and not isPlayerPart and v.AssemblyLinearVelocity.Magnitude > 2 then
 								local dist = (v.Position - root.Position).Magnitude
 								
 								if dist <= sRange and dist >= 20 and not partsInTornado[v] then
