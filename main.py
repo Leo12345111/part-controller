@@ -426,7 +426,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 											originalQuery = v.CanQuery,
 											upwardSpeed = math.random(50, 200) / 100,
 											spinModifier = math.random(40, 250) / 100,
-											speedAdd = math.random(-25, 25),
 											wobble = math.random(-8, 8)
 										}
 										
@@ -460,8 +459,10 @@ table.insert(cors, sandbox(LocalScript17, function()
 					part.CanCollide = false
 					part.Velocity = Vector3.new(0,0,0)
 					part.RotVelocity = Vector3.new(0,0,0)
+					part.AssemblyLinearVelocity = Vector3.new(0,0,0)
+					part.AssemblyAngularVelocity = Vector3.new(0,0,0)
 					
-					local actualSpeed = (baseSpeed * data.spinModifier) + data.speedAdd
+					local actualSpeed = baseSpeed * data.spinModifier
 					data.angle = data.angle + (math.rad(actualSpeed) * dt * 40)
 					
 					local targetPos = Vector3.zero
@@ -479,7 +480,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 							data.radiusMultiplier = math.random(10, 200) / 100
 							data.upwardSpeed = math.random(50, 200) / 100
 							data.spinModifier = math.random(40, 250) / 100
-							data.speedAdd = math.random(-25, 25)
 							data.wobble = math.random(-8, 8)
 						end
 
