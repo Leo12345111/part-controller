@@ -319,6 +319,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 	local isSystemActive = false
 	local connection = nil
 	local partsInTornado = {}
+	local testingParts = {}
 
 	local function stopSystem()
 		isSystemActive = false
@@ -344,6 +345,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 			end
 		end
 		partsInTornado = {}
+		testingParts = {}
 	end
 
 	local function startSystem()
@@ -384,7 +386,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 							if not v.Anchored and not isPlayerPart then
 								local dist = (v.Position - root.Position).Magnitude
 								
-								if dist <= sRange and dist >= 20 and not partsInTornado[v] then
+								if dist <= sRange and dist >= 20 and not partsInTornado[v] and not testingParts[v] then
 									
 									local isAttachedToPlayer = false
 									for _, connectedPart in pairs(v:GetConnectedParts()) do
@@ -398,42 +400,58 @@ table.insert(cors, sandbox(LocalScript17, function()
 									end
 									
 									if not isAttachedToPlayer then
-										pcall(function()
-											v:BreakJoints()
-											v.CollisionGroup = TORNADO_GROUP
-										end)
+										testingParts[v] = true
 										
-										v.CanQuery = false
-										
-										v.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-										v.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
-										
-										local partMass = math.clamp(v:GetMass(), 1, 500)
-										
-										local bp = Instance.new("BodyPosition")
-										bp.Name = "TornadoBP"
-										bp.MaxForce = Vector3.new(1e9, 1e9, 1e9)
-										bp.P = 50000 * partMass
-										bp.D = 1000 * partMass
-										bp.Position = v.Position
-										bp.Parent = v
-										
-										local bav = Instance.new("BodyAngularVelocity")
-										bav.Name = "TornadoBAV"
-										bav.MaxTorque = Vector3.new(1e9, 1e9, 1e9)
-										bav.P = 50000 + (partMass * 5000)
-										bav.AngularVelocity = Vector3.new(math.random(-50, 50), math.random(-50, 50), math.random(-50, 50))
-										bav.Parent = v
+										task.spawn(function()
+											local startPos = v.Position
+											v.AssemblyLinearVelocity = Vector3.new(0, 15, 0)
+											
+											task.wait(0.2)
+											
+											if not isSystemActive then
+												testingParts[v] = nil
+												return
+											end
+											
+											if v and v.Parent and not v.Anchored then
+												if math.abs(v.Position.Y - startPos.Y) > 0.5 then
+													pcall(function()
+														v:BreakJoints()
+														v.CollisionGroup = TORNADO_GROUP
+													end)
+													
+													v.CanQuery = false
+													
+													local partMass = math.clamp(v:GetMass(), 1, 500)
+													
+													local bp = Instance.new("BodyPosition")
+													bp.Name = "TornadoBP"
+													bp.MaxForce = Vector3.new(1e6, 1e6, 1e6)
+													bp.P = 50000 * partMass
+													bp.D = 1000 * partMass
+													bp.Position = v.Position
+													bp.Parent = v
+													
+													local bav = Instance.new("BodyAngularVelocity")
+													bav.Name = "TornadoBAV"
+													bav.MaxTorque = Vector3.new(1e6, 1e6, 1e6)
+													bav.P = 50000 + (partMass * 5000)
+													bav.AngularVelocity = Vector3.new(math.random(-50, 50), math.random(-50, 50), math.random(-50, 50))
+													bav.Parent = v
 
-										partsInTornado[v] = {
-											angle = math.rad(math.random(1, 360)),
-											height = math.random(10, spawnHeightLimit + 10),
-											radiusMultiplier = math.random(10, 200) / 100,
-											originalQuery = v.CanQuery,
-											upwardSpeed = math.random(50, 200) / 100,
-											spinModifier = math.random(40, 250) / 100,
-											wobble = math.random(-8, 8)
-										}
+													partsInTornado[v] = {
+														angle = math.rad(math.random(1, 360)),
+														height = math.random(10, spawnHeightLimit + 10),
+														radiusMultiplier = math.random(10, 200) / 100,
+														originalQuery = v.CanQuery,
+														upwardSpeed = math.random(50, 200) / 100,
+														spinModifier = math.random(40, 250) / 100,
+														wobble = math.random(-8, 8)
+													}
+												end
+											end
+											testingParts[v] = nil
+										end)
 										
 										grabbedThisCycle = grabbedThisCycle + 1
 									end
