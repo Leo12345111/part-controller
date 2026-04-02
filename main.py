@@ -407,23 +407,19 @@ table.insert(cors, sandbox(LocalScript17, function()
 										v.CanQuery = false
 										v.CanCollide = false
 										
-										v.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-										v.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
-										
-										local partMass = v:GetMass()
+										local partMass = math.clamp(v:GetMass(), 1, 500)
 										
 										local bp = Instance.new("BodyPosition")
 										bp.Name = "TornadoBP"
-										bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-										bp.P = 500000 + (partMass * 50000)
-										bp.D = 5000 + (partMass * 500)
+										bp.MaxForce = Vector3.new(1e9, 1e9, 1e9)
+										bp.P = 50000 * partMass
+										bp.D = 1000 * partMass
 										bp.Position = v.Position
 										bp.Parent = v
 										
 										local bav = Instance.new("BodyAngularVelocity")
 										bav.Name = "TornadoBAV"
-										bav.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-										bav.P = 50000 + (partMass * 5000)
+										bav.MaxTorque = Vector3.new(1e9, 1e9, 1e9)
 										bav.AngularVelocity = Vector3.new(math.random(-50, 50), math.random(-50, 50), math.random(-50, 50))
 										bav.Parent = v
 
