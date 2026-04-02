@@ -407,7 +407,41 @@ table.insert(cors, sandbox(LocalScript17, function()
 										v.CanQuery = false
 										v.CanCollide = false
 										
-										v.CFrame = root.CFrame
+										local offX = tonumber(offXBox.Text) or 0
+										local offY = tonumber(offYBox.Text) or 0
+										local offZ = tonumber(offZBox.Text) or 0
+										
+										local initAngle = math.rad(math.random(1, 360))
+										local initHeight = math.random(0, spawnHeightLimit)
+										local initRadMult = math.random(10, 200) / 100
+										local initWobble = math.random(-8, 8)
+										
+										local initTargetPos = root.Position
+										
+										if currentMode == "Tornado" then
+											local tHeight = tonumber(heightBox.Text) or 100
+											local uWidth = tonumber(upperWidthBox.Text) or 120
+											local lWidth = tonumber(lowerWidthBox.Text) or 5
+											local heightPercent = math.clamp(initHeight / tHeight, 0, 1)
+											local maxRadiusAtHeight = lWidth + ((uWidth - lWidth) * (heightPercent ^ 1.5))
+											local currentTornadoRadius = maxRadiusAtHeight * initRadMult
+											
+											local xOff = math.cos(initAngle) * currentTornadoRadius
+											local zOff = math.sin(initAngle) * currentTornadoRadius
+											
+											initTargetPos = Vector3.new(root.Position.X + xOff + offX, root.Position.Y + offY + initHeight + initWobble, root.Position.Z + zOff + offZ)
+										elseif currentMode == "Ring" then
+											local rRadius = tonumber(rRadiusBox.Text) or 30
+											local rThickness = tonumber(rThicknessBox.Text) or 10
+											local currentRingRadius = math.max(2, rRadius + ((initRadMult - 1) * rThickness * 1.5))
+											
+											local xOff = math.cos(initAngle) * currentRingRadius
+											local zOff = math.sin(initAngle) * currentRingRadius
+											
+											initTargetPos = Vector3.new(root.Position.X + xOff + offX, root.Position.Y + offY + initWobble, root.Position.Z + zOff + offZ)
+										end
+										
+										v.CFrame = CFrame.new(initTargetPos)
 										v.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
 										v.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
 										
@@ -417,7 +451,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 										bp.Name = "TornadoBP"
 										bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
 										bp.P = 500000 + (partMass * 50000)
-										bp.D = 500 + (partMass * 500)
+										bp.D = 5000 + (partMass * 500)
 										bp.Parent = v
 										
 										local bav = Instance.new("BodyAngularVelocity")
@@ -428,14 +462,14 @@ table.insert(cors, sandbox(LocalScript17, function()
 										bav.Parent = v
 
 										partsInTornado[v] = {
-											angle = math.rad(math.random(1, 360)),
-											height = math.random(0, spawnHeightLimit),
-											radiusMultiplier = math.random(10, 200) / 100,
+											angle = initAngle,
+											height = initHeight,
+											radiusMultiplier = initRadMult,
 											originalCollide = v.CanCollide,
 											originalQuery = v.CanQuery,
 											upwardSpeed = math.random(50, 200) / 100,
 											spinModifier = math.random(40, 250) / 100,
-											wobble = math.random(-8, 8)
+											wobble = initWobble
 										}
 										
 										grabbedThisCycle = grabbedThisCycle + 1
