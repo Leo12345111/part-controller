@@ -423,6 +423,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 										local bav = Instance.new("BodyAngularVelocity")
 										bav.Name = "TornadoBAV"
 										bav.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+										bav.P = 50000 + (partMass * 5000)
 										bav.AngularVelocity = Vector3.new(math.random(-50, 50), math.random(-50, 50), math.random(-50, 50))
 										bav.Parent = v
 
