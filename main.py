@@ -333,11 +333,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 		
 		for part, data in pairs(partsInTornado) do
 			if part and part.Parent then
-				local bp = part:FindFirstChild("TornadoBP")
-				if bp then bp:Destroy() end
-				local bav = part:FindFirstChild("TornadoBAV")
-				if bav then bav:Destroy() end
-
 				part.CanQuery = data.originalQuery
 				pcall(function()
 					part.CollisionGroup = "Default"
@@ -404,9 +399,9 @@ table.insert(cors, sandbox(LocalScript17, function()
 										
 										task.spawn(function()
 											local startPos = v.Position
-											v.AssemblyLinearVelocity = Vector3.new(0, 15, 0)
+											v.AssemblyLinearVelocity = Vector3.new(0, 75, 0)
 											
-											task.wait(0.2)
+											task.wait(0.25)
 											
 											if not isSystemActive then
 												testingParts[v] = nil
@@ -414,7 +409,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 											end
 											
 											if v and v.Parent and not v.Anchored then
-												if math.abs(v.Position.Y - startPos.Y) > 0.5 then
+												if math.abs(v.Position.Y - startPos.Y) >= 10 then
 													pcall(function()
 														v:BreakJoints()
 														v.CollisionGroup = TORNADO_GROUP
@@ -422,23 +417,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 													
 													v.CanQuery = false
 													
-													local partMass = math.clamp(v:GetMass(), 1, 500)
-													
-													local bp = Instance.new("BodyPosition")
-													bp.Name = "TornadoBP"
-													bp.MaxForce = Vector3.new(1e6, 1e6, 1e6)
-													bp.P = 50000 * partMass
-													bp.D = 1000 * partMass
-													bp.Position = v.Position
-													bp.Parent = v
-													
-													local bav = Instance.new("BodyAngularVelocity")
-													bav.Name = "TornadoBAV"
-													bav.MaxTorque = Vector3.new(1e6, 1e6, 1e6)
-													bav.P = 50000 + (partMass * 5000)
-													bav.AngularVelocity = Vector3.new(math.random(-50, 50), math.random(-50, 50), math.random(-50, 50))
-													bav.Parent = v
-
 													partsInTornado[v] = {
 														angle = math.rad(math.random(1, 360)),
 														height = math.random(10, spawnHeightLimit + 10),
@@ -446,7 +424,8 @@ table.insert(cors, sandbox(LocalScript17, function()
 														originalQuery = v.CanQuery,
 														upwardSpeed = math.random(50, 200) / 100,
 														spinModifier = math.random(40, 250) / 100,
-														wobble = math.random(-8, 8)
+														wobble = math.random(-8, 8),
+														rotVelocity = Vector3.new(math.random(-30, 30), math.random(-30, 30), math.random(-30, 30))
 													}
 												end
 											end
@@ -529,10 +508,8 @@ table.insert(cors, sandbox(LocalScript17, function()
 						targetPos = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
 					end
 
-					local bp = part:FindFirstChild("TornadoBP")
-					if bp then
-						bp.Position = targetPos
-					end
+					part.AssemblyLinearVelocity = (targetPos - part.Position) * 40
+					part.AssemblyAngularVelocity = data.rotVelocity
 				else
 					if part.Parent then
 						part.CanQuery = data.originalQuery
