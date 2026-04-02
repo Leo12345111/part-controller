@@ -366,7 +366,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 					local maxGrabsPerCycle = 15
 
 					for _, v in pairs(workspace:GetDescendants()) do
-                        if grabbedThisCycle >= maxGrabsPerCycle then break end
+						if grabbedThisCycle >= maxGrabsPerCycle then break end
 						
 						if v:IsA("BasePart") then
 							local isPlayerPart = false
@@ -394,23 +394,23 @@ table.insert(cors, sandbox(LocalScript17, function()
 									end
 									
 									if not isAttachedToPlayer then
-                                        pcall(function()
-                                            v:BreakJoints()
-                                            v.CollisionGroup = TORNADO_GROUP
-                                        end)
-                                        
-                                        v.CanQuery = false
-                                        
-                                        partsInTornado[v] = {
-                                            angle = math.rad(math.random(1, 360)),
-                                            height = math.random(10, spawnHeightLimit + 10),
-                                            radiusMultiplier = math.random(10, 200) / 100,
-                                            originalQuery = v.CanQuery,
-                                            upwardSpeed = math.random(50, 200) / 100,
-                                            spinModifier = math.random(40, 250) / 100,
-                                            wobble = math.random(-8, 8),
-                                            rotVelocity = Vector3.new(math.random(-30, 30), math.random(-30, 30), math.random(-30, 30))
-                                        }
+										pcall(function()
+											v:BreakJoints()
+											v.CollisionGroup = TORNADO_GROUP
+										end)
+										
+										v.CanQuery = false
+										
+										partsInTornado[v] = {
+											angle = math.rad(math.random(1, 360)),
+											height = math.random(10, spawnHeightLimit + 10),
+											radiusMultiplier = math.random(10, 200) / 100,
+											originalQuery = v.CanQuery,
+											upwardSpeed = math.random(50, 200) / 100,
+											spinModifier = math.random(40, 250) / 100,
+											wobble = math.random(-8, 8),
+											rotVelocity = Vector3.new(math.random(-30, 30), math.random(-30, 30), math.random(-30, 30))
+										}
 										grabbedThisCycle = grabbedThisCycle + 1
 									end
 								end
@@ -427,8 +427,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 			if not char or not char:FindFirstChild("HumanoidRootPart") then return end
 			local root = char.HumanoidRootPart
 			
-			local leg = char:FindFirstChild("Right Leg") or char:FindFirstChild("RightLowerLeg") or char:FindFirstChild("Left Leg") or char:FindFirstChild("LeftLowerLeg") or root
-			local baseY = leg.Position.Y
+			local baseY = root.Position.Y - 3
 			
 			local baseSpeed = tonumber(speedBox.Text) or 35
 			local offX = tonumber(offXBox.Text) or 0
@@ -487,7 +486,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 						targetPos = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
 					end
 
-					part.AssemblyLinearVelocity = (targetPos - part.Position) * 40
+					part.AssemblyLinearVelocity = (targetPos - part.Position) * 12
 					part.AssemblyAngularVelocity = data.rotVelocity
 				else
 					if part.Parent then
