@@ -405,16 +405,24 @@ table.insert(cors, sandbox(LocalScript17, function()
 										end)
 										
 										v.CanQuery = false
+										v.CanCollide = false
+										
+										v.CFrame = root.CFrame
+										v.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+										v.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+										
+										local partMass = v:GetMass()
 										
 										local bp = Instance.new("BodyPosition")
 										bp.Name = "TornadoBP"
-										bp.MaxForce = Vector3.new(math.huge * math.huge, math.huge * math.huge, math.huge * math.huge)
-										bp.P = 100000
+										bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+										bp.P = 500000 + (partMass * 50000)
+										bp.D = 500 + (partMass * 500)
 										bp.Parent = v
 										
 										local bav = Instance.new("BodyAngularVelocity")
 										bav.Name = "TornadoBAV"
-										bav.MaxTorque = Vector3.new(math.huge * math.huge, math.huge * math.huge, math.huge * math.huge)
+										bav.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
 										bav.AngularVelocity = Vector3.new(math.random(-50, 50), math.random(-50, 50), math.random(-50, 50))
 										bav.Parent = v
 
@@ -457,10 +465,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 				if part.Parent and not part.Anchored then
 					
 					part.CanCollide = false
-					part.Velocity = Vector3.new(0,0,0)
-					part.RotVelocity = Vector3.new(0,0,0)
-					part.AssemblyLinearVelocity = Vector3.new(0,0,0)
-					part.AssemblyAngularVelocity = Vector3.new(0,0,0)
 					
 					local actualSpeed = baseSpeed * data.spinModifier
 					data.angle = data.angle + (math.rad(actualSpeed) * dt * 40)
