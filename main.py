@@ -1,4 +1,4 @@
-function sandbox(var,func)
+local function sandbox(var,func)
 	local env = getfenv(func)
 	local newenv = setmetatable({},{
 		__index = function(self,k)
@@ -12,6 +12,7 @@ function sandbox(var,func)
 	setfenv(func,newenv)
 	return func
 end
+
 cors = {}
 
 local LocalScript17 = Instance.new("LocalScript")
@@ -319,7 +320,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 	local isSystemActive = false
 	local connection = nil
 	local partsInTornado = {}
-	local testingParts = {}
 
 	local function stopSystem()
 		isSystemActive = false
@@ -340,7 +340,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 			end
 		end
 		partsInTornado = {}
-		testingParts = {}
 	end
 
 	local function startSystem()
@@ -367,7 +366,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 					local maxGrabsPerCycle = 15
 
 					for _, v in pairs(workspace:GetDescendants()) do
-						if grabbedThisCycle >= maxGrabsPerCycle then break end
+                        if grabbedThisCycle >= maxGrabsPerCycle then break end
 						
 						if v:IsA("BasePart") then
 							local isPlayerPart = false
@@ -381,7 +380,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 							if not v.Anchored and not isPlayerPart then
 								local dist = (v.Position - root.Position).Magnitude
 								
-								if dist <= sRange and dist >= 20 and not partsInTornado[v] and not testingParts[v] then
+								if dist <= sRange and dist >= 20 and not partsInTornado[v] then
 									
 									local isAttachedToPlayer = false
 									for _, connectedPart in pairs(v:GetConnectedParts()) do
@@ -395,43 +394,23 @@ table.insert(cors, sandbox(LocalScript17, function()
 									end
 									
 									if not isAttachedToPlayer then
-										testingParts[v] = true
-										
-										task.spawn(function()
-											local startPos = v.Position
-											v.AssemblyLinearVelocity = Vector3.new(0, 75, 0)
-											
-											task.wait(0.25)
-											
-											if not isSystemActive then
-												testingParts[v] = nil
-												return
-											end
-											
-											if v and v.Parent and not v.Anchored then
-												if math.abs(v.Position.Y - startPos.Y) >= 10 then
-													pcall(function()
-														v:BreakJoints()
-														v.CollisionGroup = TORNADO_GROUP
-													end)
-													
-													v.CanQuery = false
-													
-													partsInTornado[v] = {
-														angle = math.rad(math.random(1, 360)),
-														height = math.random(10, spawnHeightLimit + 10),
-														radiusMultiplier = math.random(10, 200) / 100,
-														originalQuery = v.CanQuery,
-														upwardSpeed = math.random(50, 200) / 100,
-														spinModifier = math.random(40, 250) / 100,
-														wobble = math.random(-8, 8),
-														rotVelocity = Vector3.new(math.random(-30, 30), math.random(-30, 30), math.random(-30, 30))
-													}
-												end
-											end
-											testingParts[v] = nil
-										end)
-										
+                                        pcall(function()
+                                            v:BreakJoints()
+                                            v.CollisionGroup = TORNADO_GROUP
+                                        end)
+                                        
+                                        v.CanQuery = false
+                                        
+                                        partsInTornado[v] = {
+                                            angle = math.rad(math.random(1, 360)),
+                                            height = math.random(10, spawnHeightLimit + 10),
+                                            radiusMultiplier = math.random(10, 200) / 100,
+                                            originalQuery = v.CanQuery,
+                                            upwardSpeed = math.random(50, 200) / 100,
+                                            spinModifier = math.random(40, 250) / 100,
+                                            wobble = math.random(-8, 8),
+                                            rotVelocity = Vector3.new(math.random(-30, 30), math.random(-30, 30), math.random(-30, 30))
+                                        }
 										grabbedThisCycle = grabbedThisCycle + 1
 									end
 								end
