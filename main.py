@@ -377,8 +377,8 @@ table.insert(cors, sandbox(LocalScript17, function()
 								end
 							end
 
-							-- MODIFIED: Ensure unanchored, not player, AND moving faster than 2 studs/sec
-							if not v.Anchored and not isPlayerPart and v.AssemblyLinearVelocity.Magnitude > 2 then
+							-- Ensure it is strictly unanchored
+							if not v.Anchored and not isPlayerPart then
 								local dist = (v.Position - root.Position).Magnitude
 								
 								if dist <= sRange and dist >= 20 and not partsInTornado[v] then
@@ -487,7 +487,12 @@ table.insert(cors, sandbox(LocalScript17, function()
 						targetPos = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
 					end
 
-					part.AssemblyLinearVelocity = (targetPos - part.Position) * 12
+					-- SIMULATE FORCE: Calculate velocity based on mass (F = ma -> v = F/m)
+					local pullStrength = 150 -- Adjust this to make the overall tornado stronger or weaker
+					-- We clamp it so microscopically light parts don't crash the game with infinite speed
+					local speedFromForce = math.clamp(pullStrength / math.max(part.AssemblyMass, 0.1), 1, 60)
+
+					part.AssemblyLinearVelocity = (targetPos - part.Position) * speedFromForce
 					part.AssemblyAngularVelocity = data.rotVelocity
 				else
 					if part.Parent then
