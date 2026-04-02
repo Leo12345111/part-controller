@@ -19,7 +19,6 @@ LocalScript17.Name = "TornadoUI"
 table.insert(cors, sandbox(LocalScript17, function()
 	local players = game:GetService("Players")
 	local player = players.LocalPlayer
-	local targetPlayer = player
 	local playerGui = player:WaitForChild("PlayerGui")
 	local runService = game:GetService("RunService")
 	local physicsService = game:GetService("PhysicsService")
@@ -36,11 +35,11 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local gui = Instance.new("ScreenGui", playerGui)
 	gui.Name = "TornadoUI"
-	gui.ResetOnSpawn = false
+	gui.ResetOnSpawn = false 
 
 	local frame = Instance.new("Frame", gui)
-	frame.Size = UDim2.new(0, 250, 0, 480)
-	frame.Position = UDim2.new(0.5, -125, 0.5, -240)
+	frame.Size = UDim2.new(0, 250, 0, 360) 
+	frame.Position = UDim2.new(0.5, -125, 0.5, -180)
 	frame.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
 	frame.Active = true
 	frame.Draggable = true
@@ -63,70 +62,9 @@ table.insert(cors, sandbox(LocalScript17, function()
 	closeBtn.Font = Enum.Font.SourceSansBold
 	closeBtn.TextSize = 16
 
-	local targetLabel = Instance.new("TextLabel", frame)
-	targetLabel.Size = UDim2.new(0.4, 0, 0, 20)
-	targetLabel.Position = UDim2.new(0.05, 0, 0, 35)
-	targetLabel.Text = "Target:"
-	targetLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-	targetLabel.BackgroundTransparency = 1
-	targetLabel.Font = Enum.Font.SourceSansSemibold
-	targetLabel.TextSize = 15
-	targetLabel.TextXAlignment = Enum.TextXAlignment.Left
-
-	local currentTargetLabel = Instance.new("TextLabel", frame)
-	currentTargetLabel.Size = UDim2.new(0.5, 0, 0, 20)
-	currentTargetLabel.Position = UDim2.new(0.45, 0, 0, 35)
-	currentTargetLabel.Text = targetPlayer.Name
-	currentTargetLabel.TextColor3 = Color3.fromRGB(150, 255, 150)
-	currentTargetLabel.BackgroundTransparency = 1
-	currentTargetLabel.Font = Enum.Font.SourceSansBold
-	currentTargetLabel.TextSize = 15
-	currentTargetLabel.TextXAlignment = Enum.TextXAlignment.Right
-
-	local playerScroll = Instance.new("ScrollingFrame", frame)
-	playerScroll.Size = UDim2.new(0.9, 0, 0, 80)
-	playerScroll.Position = UDim2.new(0.05, 0, 0, 60)
-	playerScroll.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-	playerScroll.BorderSizePixel = 0
-	playerScroll.ScrollBarThickness = 4
-
-	local listLayout = Instance.new("UIListLayout", playerScroll)
-	listLayout.SortOrder = Enum.SortOrder.Name
-	listLayout.Padding = UDim.new(0, 2)
-
-	local function updatePlayerList()
-		for _, child in pairs(playerScroll:GetChildren()) do
-			if child:IsA("TextButton") then
-				child:Destroy()
-			end
-		end
-		local ySize = 0
-		for _, p in pairs(players:GetPlayers()) do
-			local btn = Instance.new("TextButton", playerScroll)
-			btn.Size = UDim2.new(1, -8, 0, 25)
-			btn.Text = " " .. p.Name
-			btn.TextXAlignment = Enum.TextXAlignment.Left
-			btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-			btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-			btn.BorderSizePixel = 0
-			btn.Font = Enum.Font.SourceSans
-			btn.TextSize = 14
-			btn.MouseButton1Click:Connect(function()
-				targetPlayer = p
-				currentTargetLabel.Text = p.Name
-			end)
-			ySize = ySize + 27
-		end
-		playerScroll.CanvasSize = UDim2.new(0, 0, 0, ySize)
-	end
-
-	updatePlayerList()
-	players.PlayerAdded:Connect(updatePlayerList)
-	players.PlayerRemoving:Connect(updatePlayerList)
-
 	local offLabel = Instance.new("TextLabel", frame)
 	offLabel.Size = UDim2.new(0.9, 0, 0, 20)
-	offLabel.Position = UDim2.new(0.05, 0, 0, 150)
+	offLabel.Position = UDim2.new(0.05, 0, 0, 35)
 	offLabel.Text = "Offset (X, Y, Z):"
 	offLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 	offLabel.BackgroundTransparency = 1
@@ -136,7 +74,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local offXBox = Instance.new("TextBox", frame)
 	offXBox.Size = UDim2.new(0.28, 0, 0, 25)
-	offXBox.Position = UDim2.new(0.05, 0, 0, 170)
+	offXBox.Position = UDim2.new(0.05, 0, 0, 55)
 	offXBox.Text = "0"
 	offXBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 	offXBox.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -146,7 +84,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local offYBox = Instance.new("TextBox", frame)
 	offYBox.Size = UDim2.new(0.28, 0, 0, 25)
-	offYBox.Position = UDim2.new(0.36, 0, 0, 170)
+	offYBox.Position = UDim2.new(0.36, 0, 0, 55)
 	offYBox.Text = "0"
 	offYBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 	offYBox.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -156,7 +94,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local offZBox = Instance.new("TextBox", frame)
 	offZBox.Size = UDim2.new(0.28, 0, 0, 25)
-	offZBox.Position = UDim2.new(0.67, 0, 0, 170)
+	offZBox.Position = UDim2.new(0.67, 0, 0, 55)
 	offZBox.Text = "0"
 	offZBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 	offZBox.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -166,7 +104,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local speedLabel = Instance.new("TextLabel", frame)
 	speedLabel.Size = UDim2.new(0.4, 0, 0, 30)
-	speedLabel.Position = UDim2.new(0.05, 0, 0, 205)
+	speedLabel.Position = UDim2.new(0.05, 0, 0, 90)
 	speedLabel.Text = "Spin Speed:"
 	speedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 	speedLabel.BackgroundTransparency = 1
@@ -176,7 +114,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local speedBox = Instance.new("TextBox", frame)
 	speedBox.Size = UDim2.new(0.45, 0, 0, 30)
-	speedBox.Position = UDim2.new(0.5, 0, 0, 205)
+	speedBox.Position = UDim2.new(0.5, 0, 0, 90)
 	speedBox.Text = "35"
 	speedBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 	speedBox.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -186,7 +124,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local modeLabel = Instance.new("TextLabel", frame)
 	modeLabel.Size = UDim2.new(0.3, 0, 0, 30)
-	modeLabel.Position = UDim2.new(0.05, 0, 0, 245)
+	modeLabel.Position = UDim2.new(0.05, 0, 0, 130)
 	modeLabel.Text = "Mode:"
 	modeLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 	modeLabel.BackgroundTransparency = 1
@@ -196,7 +134,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local modeBtn = Instance.new("TextButton", frame)
 	modeBtn.Size = UDim2.new(0.55, 0, 0, 30)
-	modeBtn.Position = UDim2.new(0.4, 0, 0, 245)
+	modeBtn.Position = UDim2.new(0.4, 0, 0, 130)
 	modeBtn.Text = "Tornado ▼"
 	modeBtn.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
 	modeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -205,12 +143,12 @@ table.insert(cors, sandbox(LocalScript17, function()
 	modeBtn.TextSize = 14
 
 	local dropList = Instance.new("Frame", frame)
-	dropList.Size = UDim2.new(0.55, 0, 0, 60)
-	dropList.Position = UDim2.new(0.4, 0, 0, 275)
+	dropList.Size = UDim2.new(0.55, 0, 0, 60) 
+	dropList.Position = UDim2.new(0.4, 0, 0, 160)
 	dropList.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
 	dropList.BorderSizePixel = 0
 	dropList.Visible = false
-	dropList.ZIndex = 10
+	dropList.ZIndex = 10 
 
 	local optTornado = Instance.new("TextButton", dropList)
 	optTornado.Size = UDim2.new(1, 0, 0.5, 0)
@@ -235,7 +173,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local tornadoSettings = Instance.new("Frame", frame)
 	tornadoSettings.Size = UDim2.new(1, 0, 0, 120)
-	tornadoSettings.Position = UDim2.new(0, 0, 0, 285)
+	tornadoSettings.Position = UDim2.new(0, 0, 0, 170)
 	tornadoSettings.BackgroundTransparency = 1
 	tornadoSettings.Visible = true
 
@@ -301,9 +239,9 @@ table.insert(cors, sandbox(LocalScript17, function()
 
 	local ringSettings = Instance.new("Frame", frame)
 	ringSettings.Size = UDim2.new(1, 0, 0, 120)
-	ringSettings.Position = UDim2.new(0, 0, 0, 285)
+	ringSettings.Position = UDim2.new(0, 0, 0, 170)
 	ringSettings.BackgroundTransparency = 1
-	ringSettings.Visible = false
+	ringSettings.Visible = false 
 
 	local rRadiusLabel = Instance.new("TextLabel", ringSettings)
 	rRadiusLabel.Size = UDim2.new(0.4, 0, 0, 30)
@@ -355,7 +293,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 		currentMode = "Tornado"
 		modeBtn.Text = "Tornado ▼"
 		dropList.Visible = false
-		tornadoSettings.Visible = true
+		tornadoSettings.Visible = true 
 		ringSettings.Visible = false
 	end)
 
@@ -364,12 +302,12 @@ table.insert(cors, sandbox(LocalScript17, function()
 		modeBtn.Text = "Ring ▼"
 		dropList.Visible = false
 		tornadoSettings.Visible = false
-		ringSettings.Visible = true
+		ringSettings.Visible = true 
 	end)
 
 	local toggleBtn = Instance.new("TextButton", frame)
 	toggleBtn.Size = UDim2.new(0.9, 0, 0, 40)
-	toggleBtn.Position = UDim2.new(0.05, 0, 0, 420)
+	toggleBtn.Position = UDim2.new(0.05, 0, 0, 305)
 	toggleBtn.Text = "System: OFF"
 	toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 50)
 	toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -399,7 +337,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 				local bav = part:FindFirstChild("TornadoBAV")
 				if bav then bav:Destroy() end
 
-				part.CanCollide = data.originalCollide
+				part.CanCollide = data.originalCollide 
 				part.CanQuery = data.originalQuery
 				pcall(function()
 					part.CollisionGroup = "Default"
@@ -417,20 +355,20 @@ table.insert(cors, sandbox(LocalScript17, function()
 		
 		task.spawn(function()
 			while isSystemActive do
-				local char = targetPlayer.Character
+				local char = player.Character
 				if char and char:FindFirstChild("HumanoidRootPart") then
 					local root = char.HumanoidRootPart
-					local sRange = 600
+					local sRange = 600 
 					
 					local spawnHeightLimit = 20
 					if currentMode == "Tornado" then
 						spawnHeightLimit = tonumber(heightBox.Text) or 100
 					elseif currentMode == "Ring" then
-						spawnHeightLimit = 0
+						spawnHeightLimit = 0 
 					end
 
 					local grabbedThisCycle = 0
-					local maxGrabsPerCycle = 15
+					local maxGrabsPerCycle = 15 
 
 					for _, v in pairs(workspace:GetDescendants()) do
 						if grabbedThisCycle >= maxGrabsPerCycle then break end
@@ -468,12 +406,14 @@ table.insert(cors, sandbox(LocalScript17, function()
 										
 										v.CanQuery = false
 										
+										-- PURE PHYSICS SETUP
 										local bp = Instance.new("BodyPosition")
 										bp.Name = "TornadoBP"
 										local partMass = v:GetMass()
-										bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-										bp.P = 500000 + (partMass * 50000)
-										bp.D = 1000 + (partMass * 100)
+										-- Extremely high MaxForce and P so it aggressively snaps to the orbit path
+										bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge) 
+										bp.P = 500000 + (partMass * 50000) 
+										bp.D = 1000 + (partMass * 100) 
 										bp.Parent = v
 										
 										local bav = Instance.new("BodyAngularVelocity")
@@ -483,14 +423,14 @@ table.insert(cors, sandbox(LocalScript17, function()
 										bav.Parent = v
 
 										partsInTornado[v] = {
-											angle = math.rad(math.random(1, 360)),
-											height = math.random(0, spawnHeightLimit),
-											radiusMultiplier = math.random(10, 200) / 100,
+											angle = math.rad(math.random(1, 360)), 
+											height = math.random(0, spawnHeightLimit), 
+											radiusMultiplier = math.random(10, 200) / 100, 
 											originalCollide = v.CanCollide,
 											originalQuery = v.CanQuery,
 											upwardSpeed = math.random(50, 200) / 100,
-											spinModifier = math.random(40, 250) / 100,
-											speedAdd = math.random(-25, 25),
+											spinModifier = math.random(40, 250) / 100, 
+											speedAdd = math.random(-25, 25), 
 											wobble = math.random(-8, 8)
 										}
 										
@@ -501,17 +441,17 @@ table.insert(cors, sandbox(LocalScript17, function()
 						end
 					end
 				end
-				task.wait(0.5)
+				task.wait(0.5) 
 			end
 		end)
 		
 		connection = runService.Heartbeat:Connect(function(dt)
-			local char = targetPlayer.Character
+			local char = player.Character
 			if not char or not char:FindFirstChild("HumanoidRootPart") then return end
 			local root = char.HumanoidRootPart
 			
 			local leg = char:FindFirstChild("Right Leg") or char:FindFirstChild("RightLowerLeg") or char:FindFirstChild("Left Leg") or char:FindFirstChild("LeftLowerLeg") or root
-			local baseY = leg.Position.Y
+			local baseY = leg.Position.Y 
 			
 			local baseSpeed = tonumber(speedBox.Text) or 35
 			local offX = tonumber(offXBox.Text) or 0
@@ -530,14 +470,14 @@ table.insert(cors, sandbox(LocalScript17, function()
 					local targetY = baseY + offY
 
 					if currentMode == "Tornado" then
-						data.height = data.height + (data.upwardSpeed * dt * 60)
+						data.height = data.height + (data.upwardSpeed * dt * 60) 
 
 						local tHeight = tonumber(heightBox.Text) or 100
 						local uWidth = tonumber(upperWidthBox.Text) or 120
 						local lWidth = tonumber(lowerWidthBox.Text) or 5
 						
-						if data.height > tHeight then
-							data.height = 0
+						if data.height > tHeight then 
+							data.height = 0 
 							data.radiusMultiplier = math.random(10, 200) / 100
 							data.upwardSpeed = math.random(50, 200) / 100
 							data.spinModifier = math.random(40, 250) / 100
@@ -573,11 +513,14 @@ table.insert(cors, sandbox(LocalScript17, function()
 						targetPos = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
 					end
 
+					-- PURE PHYSICS UPDATE:
+					-- Constantly update the BodyPosition to the calculated orbit target.
 					local bp = part:FindFirstChild("TornadoBP")
 					if bp then
 						bp.Position = targetPos
 					end
 				else
+					-- If the part got deleted or anchored by another script, clean it up
 					if part.Parent then
 						part.CanCollide = data.originalCollide
 						part.CanQuery = data.originalQuery
