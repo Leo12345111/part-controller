@@ -337,7 +337,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 				local bav = part:FindFirstChild("TornadoBAV")
 				if bav then bav:Destroy() end
 
-				part.CanCollide = data.originalCollide
 				part.CanQuery = data.originalQuery
 				pcall(function()
 					part.CollisionGroup = "Default"
@@ -405,7 +404,9 @@ table.insert(cors, sandbox(LocalScript17, function()
 										end)
 										
 										v.CanQuery = false
-										v.CanCollide = false
+										
+										v.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+										v.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
 										
 										local partMass = math.clamp(v:GetMass(), 1, 500)
 										
@@ -420,14 +421,14 @@ table.insert(cors, sandbox(LocalScript17, function()
 										local bav = Instance.new("BodyAngularVelocity")
 										bav.Name = "TornadoBAV"
 										bav.MaxTorque = Vector3.new(1e9, 1e9, 1e9)
+										bav.P = 50000 + (partMass * 5000)
 										bav.AngularVelocity = Vector3.new(math.random(-50, 50), math.random(-50, 50), math.random(-50, 50))
 										bav.Parent = v
 
 										partsInTornado[v] = {
 											angle = math.rad(math.random(1, 360)),
-											height = math.random(0, spawnHeightLimit),
+											height = math.random(10, spawnHeightLimit + 10),
 											radiusMultiplier = math.random(10, 200) / 100,
-											originalCollide = v.CanCollide,
 											originalQuery = v.CanQuery,
 											upwardSpeed = math.random(50, 200) / 100,
 											spinModifier = math.random(40, 250) / 100,
@@ -461,8 +462,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 			for part, data in pairs(partsInTornado) do
 				if part.Parent and not part.Anchored then
 					
-					part.CanCollide = false
-					
 					local actualSpeed = baseSpeed * data.spinModifier
 					data.angle = data.angle + (math.rad(actualSpeed) * dt * 40)
 					
@@ -477,7 +476,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 						local lWidth = tonumber(lowerWidthBox.Text) or 5
 						
 						if data.height > tHeight then
-							data.height = 0
+							data.height = 10
 							data.radiusMultiplier = math.random(10, 200) / 100
 							data.upwardSpeed = math.random(50, 200) / 100
 							data.spinModifier = math.random(40, 250) / 100
@@ -507,7 +506,7 @@ table.insert(cors, sandbox(LocalScript17, function()
 						local xOff = math.cos(data.angle) * currentRingRadius
 						local zOff = math.sin(data.angle) * currentRingRadius
 						
-						targetY = baseY + offY + data.wobble
+						targetY = baseY + offY + data.wobble + 10 
 						
 						targetPos = Vector3.new(root.Position.X + xOff + offX, targetY, root.Position.Z + zOff + offZ)
 					end
@@ -518,7 +517,6 @@ table.insert(cors, sandbox(LocalScript17, function()
 					end
 				else
 					if part.Parent then
-						part.CanCollide = data.originalCollide
 						part.CanQuery = data.originalQuery
 						pcall(function()
 							part.CollisionGroup = "Default"
